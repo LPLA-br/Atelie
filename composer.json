@@ -1,0 +1,26 @@
+{
+    "name": "lpla-br/atelie",
+    "description": "Aplicacao gerencial atelie",
+    "type": "project",
+    "license": "ISC",
+    "scripts":{
+        "test": "./vendor/bin/phpunit tests"
+    },
+    "autoload": {
+        "psr-4": {
+            "Src\\": "Src/"
+        },
+        "classmap": [
+            "Src/"
+        ]
+    },
+    "authors": [
+        {
+            "name": "Luiz",
+            "email": "null@null.com"
+        }
+    ],
+    "require-dev": {
+        "phpunit/phpunit": "^12.4"
+    }
+}
