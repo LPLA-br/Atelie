@@ -10,17 +10,22 @@ class InsumoUnitario extends AInsumo
     private int $quantidade;
     private float $custoUnitario;
 
-    public function __construct( int $id, string $nome, IPreco $preco ,int $quantidade, float $custoUnitario )
+    public function __construct( int $id, string $nome, IPreco $preco, string $unidade ,int $quantidade, float $custoUnitario )
     {
-        parent::__construct( $id, $nome, $preco );
+        parent::__construct( $id, $nome, $preco, $unidade );
 
         $this->validarQuantidade( $quantidade );
-
         $this->quantidade = $quantidade;
         $this->custoUnitario = $custoUnitario;
-
         $this->computarPreco();
     }
+
+    public function obterUnidadeMedida(): string
+    {
+      return $this->unidade;
+    }
+
+    //----------------------------------------------------------------------------
 
     private function computarPreco(): void
     {
@@ -31,7 +36,7 @@ class InsumoUnitario extends AInsumo
     {
         if ( $quantidade <= 0 )
         {
-            throw new LogicException( get_class($this) . ": Insumo não pode ter quantidade negativa ou nula." );
+            throw new \Exception( "Insumo não pode ter quantidade negativa ou nula." );
         }
         return;
     }
@@ -40,7 +45,7 @@ class InsumoUnitario extends AInsumo
     {
         if ( $custoUnitario <= 0.0 )
         {
-            throw new LogicException( get_class($this) . ": Custo de unidade não pode ser negativo ou nulo" );
+            throw new \Exception( "Custo de unidade não pode ser negativo ou nulo." );
         }
         return;
     }

@@ -7,28 +7,35 @@ use Src\Domain\Entity\AInsumo;
 
 class InsumoQuadrado extends AInsumo
 {
-    private float $metrosQuadrados;
+  private float $metrosQuadrados;
 
-    public function __construct( int $id, string $nome, IPreco $preco, float $metrosQuadrados )
+  public function __construct( int $id, string $nome, IPreco $preco, string $unidade, float $metrosQuadrados )
+  {
+    parent::__construct( $id, $nome, $preco, $unidade );
+
+    this->validarAreaQuadrada( $metrosQuadrados );
+    this->computarPreco();
+  }
+
+  //----------------------------------------------------------------------------
+
+  protected function obterUnidadeMedida(): string
+  {
+    return $this->unidade;
+  }
+
+  protected function computarPreco(): void
+  {
+    this->preco->multiplicar( $metrosQuadrados );
+  }
+
+  protected function validarAreaQuadrada( float $proposta ): void
+  {
+    if ( $proposta <= 0.0 )
     {
-        parent::__construct( $id, $nome, $preco );
-
-        this->validarAreaQuadrada( $metrosQuadrados );
-        this->computarPreco();
+      throw new \Exception( "Metro quadrado não pode ser negativo ou nulo." );
     }
-
-    protected function computarPreco(): void
-    {
-        this->preco->multiplicar( $metrosQuadrados );
-    }
-
-    protected function validarAreaQuadrada( float $proposta ): void
-    {
-        if ( $proposta <= 0.0 )
-        {
-            throw new LogicException( get_class($this) . ": Metro quadrado não pode ser negativo ou nulo" );
-        }
-        return;
-    }
+    return;
+  }
 }
 
