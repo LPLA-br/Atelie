@@ -83,13 +83,13 @@ final class ValueObjectPrazoTest extends TestCase
     $this->assertEquals( $instancia->obterPrazo(), $amanha );
   }
 
-  public function testPrazoAtrasadoEstaUltrapassadoFunciona()
+  public function testPrazoInstanciadoAtrasadoFunciona()
   {
     $dateTime = new DateTime( date("Y-m-d") );
     $dateTime->modify("-7 days");
 
     $instancia = new Prazo( $dateTime->format("Y-m-d") );
-    $this->assertEquals( $instancia->, );
+    $this->assertEquals( $instancia->estaPrazoUltrapassado(), true );
   }
 
 

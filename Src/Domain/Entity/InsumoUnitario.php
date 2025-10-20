@@ -5,49 +5,81 @@ namespace Src\Domain\Entity;
 use Src\Domain\ValueObject\IPreco;
 use Src\Domain\Entity\AInsumo;
 
+/* Representa N insumos cujo custo computa-se por unidade. */
 class InsumoUnitario extends AInsumo
 {
-    private int $quantidade;
-    private float $custoUnitario;
 
-    public function __construct( int $id, string $nome, IPreco $preco, string $unidade ,int $quantidade, float $custoUnitario )
+  public function __construct( int $id, string $nome, IPreco $preco )
+  {
+    parent::__construct( $id, $nome, $preco );
+  }
+
+  /* int retifica float para inteiro automaticamente. */
+  public function aumentarUnidades( int $aumento ): void
+  {
+    try
     {
-        parent::__construct( $id, $nome, $preco, $unidade );
-
-        $this->validarQuantidade( $quantidade );
-        $this->quantidade = $quantidade;
-        $this->custoUnitario = $custoUnitario;
-        $this->computarPreco();
+      $this->preco->aumentarQuantidade( $aumento );
     }
-
-    public function obterUnidadeMedida(): string
+    catch ( \Exception $e )
     {
-      return $this->unidade;
+      error_log( $e->getMessage() );
     }
+  }
 
-    //----------------------------------------------------------------------------
-
-    private function computarPreco(): void
+  public function diminuirUnidades( int $diminuicao ): void
+  {
+    try
     {
-        this->preco->multiplicar( this->quantidade );
+      $this->preco->diminuirQuantidade( $diminuicao );
     }
-
-    protected function validarQuantidade( int $quantidade ): void
+    catch ( \Exception $e )
     {
-        if ( $quantidade <= 0 )
-        {
-            throw new \Exception( "Insumo não pode ter quantidade negativa ou nula." );
-        }
-        return;
+      error_log( $e->getMessage() );
     }
+  }
 
-    protected function validarCustoUnitario( float $custoUnitario ): void
+  public function obterQuantidadeUnidades(): int
+  {
+    try
     {
-        if ( $custoUnitario <= 0.0 )
-        {
-            throw new \Exception( "Custo de unidade não pode ser negativo ou nulo." );
-        }
-        return;
+      return $this->preco->obterQuantidade();
     }
+    catch ( \Exception $e )
+    {
+      error_log( $e->getMessage() );
+    }
+  }
 
+  public function obterPrecoUnidade(): float
+  {
+    try
+    {
+      return $this->preco->obterPreco();
+    }
+    catch ( \Exception $e )
+    {
+      error_log( $e->getMessage() );
+    }
+  }
+
+  //----------------------------------------------------------------------------
+
+  private function validarUnidades( int $numero ): void
+  {
+    if ( !$this->ePositivaUnidades( $numero ) )
+    {
+      throw new \Exception( "Unidades invalidas por valor menor que zero." );
+    }
+    return;
+  }
+  
+  private function ePositivaUnidades( int $numero ): bool
+  {
+    if ( $numero >= 0.0 )
+    {
+      return true;
+    }
+    return false;
+  }
 }

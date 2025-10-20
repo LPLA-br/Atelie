@@ -6,43 +6,48 @@ use Src\Domain\ValueObject\IPreco;
 
 abstract class AInsumo
 {
-  private int $id;
-  private string $nome;
-  private IPreco $preco;
+  protected int $id;
+  protected string $nome;
+  protected IPreco $preco;
 
-  public function __construct( int $id, string $nome, IPreco $preco, string $unidade )
+  public function __construct( int $id, string $nome, IPreco $preco )
   {
     $this->validarNome( $nome );
 
     $this->id = $id;
     $this->nome = $nome;
     $this->preco = $preco;
-    $this->unidade = $unidade;
   }
 
-  // Como se mede o insumo específico.
-  abstract public function obterUnidadeMedida(): string;
+  public function obterId(): int
+  {
+    return $this->id;
+  }
 
   public function obterNome(): string
   {
     return $this->nome;
   }
 
-  public function obterPreco(): float
+  public function obterCusto(): float
   {
-    return $this->preco->obterPreco();
+    try
+    {
+      return $this->preco->obterTotal();
+    }
+    catch ( \Exception $e )
+    {
+      error_log( $e->getMessage() );
+    }
   }
 
   //----------------------------------------------------------------------------
-
-  // Muda conforme alteração de quantidade específica.
-  abstract protected function computarPreco(): void;
 
   protected function validarNome( string $proposta ): void
   {
     if ( !$this->eNome( $proposta ) )
     {
-      throw new Exception( "Insumo sem nome válido." );
+      throw new \Exception( "Insumo sem nome válido." );
     }
     return;
   }
@@ -54,11 +59,6 @@ abstract class AInsumo
       return false;
     }
     return true;
-  }
-
-  protected function obterIdentificador(): int
-  {
-    return $this->id;
   }
 
 }

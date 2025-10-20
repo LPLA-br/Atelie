@@ -5,7 +5,8 @@
     "license": "ISC",
     "scripts":{
         "test": "./vendor/bin/phpunit --testdox tests",
-        "testdebug": "./vendor/bin/phpunit --debug --testdox tests"
+        "testdebug": "./vendor/bin/phpunit --debug --testdox tests",
+        "lint": "find Src/ -type f -iname *.php | xargs -d '\n' -I '{}' php -l {}"
     },
     "autoload": {
         "psr-4": {
