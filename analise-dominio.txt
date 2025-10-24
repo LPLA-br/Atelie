@@ -1,0 +1,241 @@
+
+  Documento de modelagem ágil orientado a identação.
+
+  ATELIÊ - Um software para costureiras freelancers independentes
+
+  set colorcolumn=72
+  set textwidth=72
+  set formatoptions+=t
+
+  PROJETO E FINALIDADES
+
+  Project Management System...........SIM
+  Finance Management System...........SIM
+  Customer Relationship Management....NÃO
+
+
+-----------------------------------------------------------------------
+SUMÁRIO (gerado por grep -E "^[1-9]")
+
+0.DESCRIÇÃO DO PROBLEMA DE NEGÓCIO
+1.HIERARQUIA ABSTRACIONAL POR MACROCATEGORIA
+2.CLASSES, INTERFACES E ABSTRAÇÕES
+2.1 INTERFACES || ENUMERAÇÕES
+2.2 CLASSES ABSTRATAS
+2.3 RELAÇÕES INTERCLASSE
+2.4 DIAGRAMA HIERARQUICO DO ESTADO DA ARTE
+3.ENDPOINTS HTTP
+4.BANCO DE DADOS
+5.APENDICES
+5.1 CRITÉRIOS DE CLASSIFICAÇÃO DOS REQUISITOS FUNCIONAIS:
+5.2 GRANULARIDADE DO MODELO DE CLASSES
+5.3 CICLO DE VIDA DE UM SERVIÇO COMPOSTO DE N PEÇAS
+5.4 CICLO DE VIDA DE UMA PEÇA
+5.5 UNICIDADE INFORMACIONAL DAS ENTIDADES
+
+-----------------------------------------------------------------------
+0.DESCRIÇÃO DO PROBLEMA DE NEGÓCIO
+CLIENTES Requisitam SERVIÇOS que possuem CONSERTOS ou CONFECÇÕES de
+Roupas (PEÇAS) com PRAZOS estabelecidos que são frequentemente
+esquecidos. MEDIDAS CORPORAIS dos CLIENTES são guardadas em papel.
+CONSERTOS e CONFECÇÕES possuem PEÇAS que necessitam de INSUMOS para
+concretização do concerto ou da confeção. PEÇAS têm PRAZOS próprios.
+SERVIÇOS possuem número variável de PEÇAS e só são considerados como
+terminados quando todas as PEÇAS são concluídas ou abortadas.
+
+Especificidades de domínio
+CONSERTO ou CONFECÇÃO é um SERVIÇO que possui PEÇAS com características
+que variam em função das MEDIDAS DOS CLIENTES. Tecidos são
+contabilizados por metro quadrado Medidas são em centímetros. Insumos
+são: Zippers (unidade), Botões (unidade), Metros de tecido, Metros de
+linhas(incalculável/desprezível). Custos de Insumos e Custo de tempo
+definem o valor final por Serviço ou Por Peça.
+-----------------------------------------------------------------------
+1.HIERARQUIA ABSTRACIONAL POR MACROCATEGORIA
+Poucos ou todos os itens listados aqui podem tornar-se classes.
+
+  ENTIDADES FÍSICAS
+    Costureira
+    Clientes
+    Peças //de roupa
+      Insumos //componentes de roupas
+
+  PROCESSOS
+    Serviço
+      Conserto  |
+      Confecção |
+
+  ATRIBUTOS GLOBAIS
+    Posição espacial de entidade
+      Endereco
+        Cidade //Escalação
+        Bairro
+        Rua
+        Número
+    Contatação
+      Email
+      Telefone
+    Dimensões N Dimensional
+      Medidas
+        Tecido
+          metro quadrado
+        Linha
+          metro
+        Insumos unitários
+          unidades
+            botão,ziper
+        Corpo
+          EXTREMAMENTE_VARIÁVEL
+    Tempo
+      Prazo
+        Dia
+        Hora
+    Custo
+      Custo por unidade
+      Custo por quantidade exata N dimensional
+
+-----------------------------------------------------------------------
+2.CLASSES, INTERFACES E ABSTRAÇÕES
+
+2.1 INTERFACES || ENUMERAÇÕES
+
+Interfaces
+  ICliente
+  IContato
+  IEndereco
+  IServico
+  IPeca
+    IPecaEstado [extends IServicoEstado]
+    IPecaPrazo  [dias]
+
+Enumerações
+  EServicoTipo
+    [
+      Confecção,
+      Conserto,
+      Confeccao_e_concerto
+    ]
+  EServicoEstado
+    [
+      Concluido,
+      Pendente,
+      Pedente_atrasado,
+      Abortado,
+      Abortado_parcialmente
+    ]
+
+2.2 CLASSES ABSTRATAS
+
+AServico
+  ServicoConcerto
+  ServicoConfecao
+
+AInsumo
+  InsumoUnitario
+  InsumoQuadrado
+
+2.3 RELAÇÕES INTERCLASSE
+
+Cliente AGREGA 1..1 Serviço \\manipulação de serviço
+Cliente AGREGA 0..N Contato
+Serviço COMPÕE-SE DE 1..N Peça
+Peça COMPÔE-SE 0..N Insumo 
+Peça ASSOCIA-SE 1..1 Prazo
+
+Medida
+Endereco
+Contato
+Insumo
+
+
+2.4 DIAGRAMA HIERARQUICO DO ESTADO DA ARTE
+Cliente
+  Servico
+    ColecaoPecas
+      Pecas
+        ColecaoInsumos
+          Insumos
+
+-----------------------------------------------------------------------
+3.ENDPOINTS HTTP
+
+Seguir documento com especificação técnica para modelagem de endpoints
+REST (REpresentational State Transfer) Nível de maturidade 2
+
+OPTIONS Métodos disponíveis para rotas específicas da URI
+HEAD    Existência e tamanho de recurso.
+GET     Obtenção de todas representações de recursos, secção paginada
+        ou um elemento.
+POST    Criação de recurso novo com representação válida.
+PUT     Substituição total da representação de um recurso existente.
+PATCH   Modificação parcial ou total da representação de um recurso
+        respeitando restrições de Domínio.
+DELETE  Deleção ou arquivamento de recurso e sua representação.
+
+/clientes
+/clientes/:id
+
+/servicos
+/servicos?estado
+/servico/:id
+
+/pecas
+/pecas/:id
+
+/medidas
+/medidas/:cliente
+
+-----------------------------------------------------------------------
+4.BANCO DE DADOS
+  
+  Postgres
+  
+  Aplicação utiliza todos os níveis de multiplicidade:
+  (1..1) ,(1..N) e (N..N).
+
+  I. Problema da dinamicidade de medidas
+    MedidaCliente 1..N MedidaComponente
+      {desc, unidade_numerica_espacial}
+
+
+-----------------------------------------------------------------------
+5.APENDICES
+
+5.1 CRITÉRIOS DE CLASSIFICAÇÃO DOS REQUISITOS FUNCIONAIS:
+  Prioridade:
+      • Essencial: Funcionalidades que são críticas para o produto fun-
+        cionar.
+      • Desejável: Funcionalidades que aumentam a usabilidade ou exper-
+        iência do usuário.
+      • Opcional: Funcionalidades "extras" que podem ser implementadas 
+        no futuro.
+  Complexidade de implementação:
+      • Simples: Rápidas de implementar.
+      • Moderada: Demandam algum esforço técnico.
+      • Complexa: Requerem planejamento significativo ou infraestrutura.
+
+Use uma matriz Impacto x Esforço para organizar os requisitos:
+  Impacto alto, esforço baixo: Prioridade para as primeiras versões.
+  Impacto baixo, esforço alto: Deixe para versões futuras.
+
+5.2 GRANULARIDADE DO MODELO DE CLASSES
+  I. Evitar sobrexpansão de granularidade no início da modelagem
+
+5.3 CICLO DE VIDA DE UM SERVIÇO COMPOSTO DE N PEÇAS
+
+CRIAÇÃO-Pendente->Progredinte------>Concluido
+        |         |          |______Concluido_parcialmente
+        |_________|_________________Abortado
+
+5.4 CICLO DE VIDA DE UMA PEÇA
+
+CRIAÇÃO->Pendente->Progredinte->Concluida
+                |____________|__Abortada
+
+5.5 UNICIDADE INFORMACIONAL DAS ENTIDADES
+Indo além um identificador gênérico
+Insumo = nome
+
+5.6 MÉTODO ANALÍTICO SIMPLIFICADO
+coletarEvidencias->analisar->ordenar->enumerarConclusoes();
+

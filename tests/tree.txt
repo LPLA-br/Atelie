@@ -1,0 +1,23 @@
+Src/Domain/
+├── Collection
+│   ├── InsumosColecao.php
+│   └── PecasColecao.php
+├── Entity
+│   ├── AInsumo.php             ok
+│   ├── Cliente.php
+│   ├── InsumoQuadrado.php      ok
+│   ├── InsumoUnitario.php      ok
+│   └── Peca.php
+├── Enum
+│   ├── EPecaEstado.php
+│   ├── EPecaTipo.php
+│   ├── EServicoEstado.php
+│   └── EServicoTipo.php
+├── Service
+│   └── ServicoCostureira.php
+└── ValueObject
+    ├── IPreco.php              ok
+    ├── Prazo.php               ok
+    └── Preco.php               ok
+
+6 directories, 15 files
