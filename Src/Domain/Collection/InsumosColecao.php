@@ -22,7 +22,7 @@ class InsumosColecao
     $this->validarUnicidadeDeNomes( $insumos );
 
     $this->insumos = $insumos;
-    $this->custo = $this->computarSomaPrecosInsumos();
+    $this->custo = $this->obterSomatorioCustoTodosInsumos();
   }
 
   public function adicionar( AInsumo $objeto ): void
@@ -32,12 +32,11 @@ class InsumosColecao
 
   public function buscarPorId( int $id ): AInsumo | NULL
   {
-    for ( $i = 0; $i < sizeof( $this->insumos ); $i++ )
+    $indicie = $this->buscarIndicieInsumoPeloId( $id );
+
+    if ( $indicie !== -1 )
     {
-      if ( $this->insumos[ $i ]->obterId() === $id )
-      {
-        return $this->insumos[$i];
-      }
+      return $this->insumos[ $indicie ];
     }
     return NULL;
   }
@@ -45,36 +44,63 @@ class InsumosColecao
   public function buscarPorNome( string $nome ): AInsumo | NULL
   {
     $this->validarStringBusca( $nome );
+    
+    $indicie = $this->buscarIndicieInsumoPeloNome( $nome );
 
-    for ( $i = 0; $i < sizeof( $this->insumos ); $i++ )
+    if ( $indicie !== -1 )
     {
-      if ( $this->insumos[$i]->obterNome() === $nome )
-      {
-        return $this->insumos[$i];
-      }
+      return $this->insumos[ $indicie ];
     }
     return NULL;
   }
 
-  public function remover( string $nome ): void
+  public function removerPorId( int $id ): AInsumo | NULL
   {
-    $index = $this->buscarIndexDeObjetoPeloNome( $nome );
-    if ( !$index === -1 )
+    $indicie = $this->buscarIndicieInsumoPeloId( $id );
+
+    if ( $indicie !== -1 )
     {
-      array_splice( $this->insumos[ $index ] );
+      return array_splice( $this->insumos, $indicie, 1 )[0];
     }
-    return;
+    throw new \Exception( "elemento com id \"" . $id . "\" para ser removido não existe." );
   }
 
-  public function substituir( string $nome, AInsumo $objeto ): void
+  public function removerPorNome( string $nome ): AInsumo | NULL
   {
-    $anterior = $this->buscarIndexDeObjetoPeloNome( $nome );
-    if ( !$anterior === -1 )
+    $indicie = $this->buscarIndicieInsumoPeloNome( $nome );
+
+    if ( $indicie !== -1 )
     {
-      $this->insumos[ $anterior ] = $objeto;
+      return array_splice( $this->insumos, $indicie, 1 )[0];
     }
-    return;
+    throw new \Exception( "elemento com nome \"" . $nome . "\" para ser removido não existe." );
   }
+
+  public function substituirPorId( int $id, AInsumo $novo ): void
+  {
+    $indicie = $this->buscarIndicieInsumoPeloId( $id );
+
+    if ( $indicie !== -1 )
+    {
+      $this->insumos[ $indicie ] = $novo;
+      return;
+    }
+    throw new \Exception( "elemento com id \"" . $id . "\" para ser substituido não existe." );
+  }
+
+  public function substituirPorNome( string $nome, AInsumo $novo ): void
+  {
+    $anterior = $this->buscarIndicieInsumoPeloNome( $nome );
+
+    if ( $indicie !== -1 )
+    {
+      $this->insumos[ $indicie ] = $novo;
+      return;
+    }
+    throw new \Exception( "elemento com nome \"" . $nome . "\" para ser substituido não existe." );
+  }
+
+  //----------------------------------------------------------------
 
   public function obterSomatorioCustoTodosInsumos(): float
   {
@@ -99,7 +125,7 @@ class InsumosColecao
     {
       if ( $this->insumos[ $i ] instanceof InsumoUnitario )
       {
-        $contagem += 1;
+        $contagem += $this->insumos[ $i ]->obterQuantidadeUnidades();
       }
     }
 
@@ -123,7 +149,7 @@ class InsumosColecao
 
   //----------------------------------------------------------------
 
-  protected function buscarIndexDeObjetoPeloNome( string $nome ): int
+  protected function buscarIndicieInsumoPeloNome( string $nome ): int
   {
     $this->validarStringBusca( $nome );
 
@@ -137,11 +163,23 @@ class InsumosColecao
     return -1;
   }
 
+  protected function buscarIndicieInsumoPeloId( int $id ): int
+  {
+    for ( $i = 0; $i < sizeof( $this->insumos ); $i++ )
+    {
+      if ( $this->insumos[$i]->obterId() == $id )
+      {
+        return $i;
+      }
+    }
+    return -1;
+  }
+
   //----------------------------------------------------------------
 
   protected function validarStringBusca( string $proposta ): void
   {
-    if ( !is_string( $nome ) && !(strlen($proposta) > 0) )
+    if ( !is_string( $proposta ) && !(strlen($proposta) > 0) )
     {
       throw new \Exception( "String de busca inválida: $proposta" );
     }
@@ -204,7 +242,7 @@ class InsumosColecao
     // inicialização
     for ( $i = 0; $i < sizeof( $arrayObjetos ); $i++ )
     {
-      $nomes[ $arrayObjetos[ $i ]->obterNome() ] = 1;
+      $nomes[ $arrayObjetos[ $i ]->obterNome() ] = 0;
     }
 
     // busca linear marcando redundâncias
@@ -214,13 +252,12 @@ class InsumosColecao
     }
 
     //Mais de um -> false
-    for ( $i = 0; $i < sizeof( $arrayObjetos ); $i++ )
+    foreach ( $nomes as $nome )
     {
-      if ( !($nomes[ $i ] === 1) )
+      if ( $nome > 1 )
       {
         return false;
       }
-      continue;
     }
 
     return true;

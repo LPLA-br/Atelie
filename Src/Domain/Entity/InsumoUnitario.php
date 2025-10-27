@@ -17,6 +17,8 @@ class InsumoUnitario extends AInsumo
   /* int retifica float para inteiro automaticamente. */
   public function aumentarUnidades( int $aumento ): void
   {
+    $this->validarUnidades( $aumento );
+
     try
     {
       $this->preco->aumentarQuantidade( $aumento );
@@ -29,6 +31,9 @@ class InsumoUnitario extends AInsumo
 
   public function diminuirUnidades( int $diminuicao ): void
   {
+    $this->validarUnidades( $diminuicao );
+    $this->validarSubracaoExcessiva( $diminuicao );
+
     try
     {
       $this->preco->diminuirQuantidade( $diminuicao );
@@ -73,6 +78,15 @@ class InsumoUnitario extends AInsumo
     }
     return;
   }
+
+  private function validarDiminuicaoExcessiva( int $proposta ): void
+  {
+    if ( !$this->eDiminutivel( $proposta ) )
+    {
+      throw new \Exception( "Diminuicao de quantidade maior que quantidade disponivel." );
+    }
+    return;
+  }
   
   private function ePositivaUnidades( int $numero ): bool
   {
@@ -81,5 +95,14 @@ class InsumoUnitario extends AInsumo
       return true;
     }
     return false;
+  }
+
+  private function eDiminutivel( int $proposta ): bool
+  {
+    if ( $proposta > $this->preco->obterQuantidade() )
+    {
+      return false;
+    }
+    return true;
   }
 }

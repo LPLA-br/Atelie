@@ -20,6 +20,8 @@ class InsumoQuadrado extends AInsumo
 
   public function aumentarArea( float $aumento ): void
   {
+    $this->validarAreaQuadrada( $aumento );
+
     try
     {
       $this->preco->aumentarQuantidade( $aumento );
@@ -32,6 +34,9 @@ class InsumoQuadrado extends AInsumo
 
   public function diminuirArea( float $diminuicao ): void
   {
+    $this->validarAreaQuadrada( $diminuicao );
+    $this->validarDiminuicaoExcessiva( $diminuicao );
+
     try
     {
       $this->preco->diminuirQuantidade( $diminuicao );
@@ -65,6 +70,15 @@ class InsumoQuadrado extends AInsumo
     return;
   }
 
+  private function validarDiminuicaoExcessiva( float $proposta ): void
+  {
+    if ( !$this->eDiminutivel( $proposta ) )
+    {
+      throw new \Exception( "Diminuicao de area maior que area disponivel." );
+    }
+    return;
+  }
+
   protected function ePositivaArea( float $proposta ): bool
   {
     if ( $proposta > 0 )
@@ -72,6 +86,15 @@ class InsumoQuadrado extends AInsumo
       return true;
     }
     return false;
+  }
+
+  private function eDiminutivel( int $proposta ): bool
+  {
+    if ( $proposta > $this->preco->obterQuantidade() )
+    {
+      return false;
+    }
+    return true;
   }
 }
 
