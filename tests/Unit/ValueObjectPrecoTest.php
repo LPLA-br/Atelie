@@ -31,7 +31,7 @@ final class ValueObjectPrecoTest extends TestCase
   {
     $instancia = new Preco( 1.0, 1 );
     $instancia->aumentarQuantidade( 1 );
-    $this->assertEquals( 2.0, $instancia->obterPreco() );
+    $this->assertEquals( (1.0*2), $instancia->obterPreco() );
   }
 
   public function testDiminuicaoQuantidadeAfetaPrecoCorretamente()

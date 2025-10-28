@@ -20,6 +20,7 @@ class InsumosColecao
   {
     $this->validarTiposObjetos( $insumos );
     $this->validarUnicidadeDeNomes( $insumos );
+    $this->validarUnicidadeDeIds( $insumos );
 
     $this->insumos = $insumos;
     $this->custo = $this->obterSomatorioCustoTodosInsumos();
@@ -27,6 +28,7 @@ class InsumosColecao
 
   public function adicionar( AInsumo $objeto ): void
   {
+    $this->validarNovoInsumo( $objeto );
     array_push( $this->insumos, $objeto );
   }
 
@@ -88,6 +90,7 @@ class InsumosColecao
     throw new \Exception( "elemento com id \"" . $id . "\" para ser substituido não existe." );
   }
 
+  /*@ignore*/
   public function substituirPorNome( string $nome, AInsumo $novo ): void
   {
     $anterior = $this->buscarIndicieInsumoPeloNome( $nome );
@@ -147,6 +150,16 @@ class InsumosColecao
     return $area;
   }
 
+  public function obterColecao(): array
+  {
+    return $this->insumos;
+  }
+
+  public function obterTotalInsumos(): int
+  {
+    return sizeof( $this->insumos );
+  }
+
   //----------------------------------------------------------------
 
   protected function buscarIndicieInsumoPeloNome( string $nome ): int
@@ -183,7 +196,6 @@ class InsumosColecao
     {
       throw new \Exception( "String de busca inválida: $proposta" );
     }
-    return;
   }
 
   protected function validarTipoObjeto( $objeto ): void
@@ -207,6 +219,32 @@ class InsumosColecao
     if ( !$this->saoTodosPossuidoresNomesDiferentes( $arrayObjetos ) )
     {
       throw new \Exception( "Array de objetos possui nomes redundântes." );
+    }
+  }
+
+  protected function validarUnicidadeDeIds( $arrayObjetos ): void
+  {
+    if ( !$this->saoTodosIdsDiferentes( $arrayObjetos ) )
+    {
+      throw new \Exception( "Array de objetos possui conflito de identificadores." );
+    }
+  }
+
+  protected function validarNovoInsumo( AInsumo $proposto ): void
+  {
+    for ( $i = 0; $i < (sizeof($this->insumos)); $i++ )
+    {
+      if ( $this->insumos[ $i ]->obterId() === $proposto->obterId() )
+      {
+        throw new \Exception( "Identificador já existe na coleção." );
+        break;
+      }
+
+      if ( $this->insumos[ $i ]->obterNome() === $proposto->obterNome() )
+      {
+        throw new \Exception( "Nome já existe na coleção." );
+        break;
+      }
     }
   }
 
@@ -270,6 +308,23 @@ class InsumosColecao
       return true;
     }
     return false;
+  }
+
+  protected function saoTodosIdsDiferentes( $arrayObjetos ): bool
+  {
+    for ( $i = 0; $i < (sizeof($arrayObjetos)); $i++ )
+    {
+      for ( $j = 0; $j < (sizeof($arrayObjetos)); $j++ )
+      {
+        if ( $i === $j ) continue;
+
+        if ( $arrayObjetos[ $i ] === $arrayObjetos[ $j ] )
+        {
+          return false;
+        }
+      }
+    }
+    return true;
   }
 
 }

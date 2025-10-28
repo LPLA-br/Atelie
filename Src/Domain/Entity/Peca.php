@@ -10,216 +10,342 @@ use Src\Domain\Entity\AInsumo;
 
 class Peca
 {
-    private int $id;
-    private string $descricao;
+  private int $id;
+  private string $descricao;
 
-    private EPecaTipo $tipo;
-    private EPecaEstado $estado;
+  private EPecaTipo $tipo;
+  private EPecaEstado $estado;
 
-    private Prazo $prazo;
-    private InsumosColecao $insumos;
+  private Prazo $prazo;
+  private InsumosColecao $insumos;
 
-    public function __construct( int $id, string $descricao, EPecaTipo $tipo, EPecaEstado $estado, InsumosColecao $insumo )
+  public function __construct(
+    int $id, string $descricao, 
+    EPecaTipo $tipo, EPecaEstado $estado,
+    InsumosColecao $insumo )
+  {
+    $this->id = $id;
+    $this->descricao = $descricao;
+
+    $this->tipo = $tipo;
+    $this->estado = $estado;
+
+    $this->prazo = $prazo;
+    $this->insumos = $insumos;
+  }
+
+  // MANIPULAÇÃO DE ESTADOS DA PEÇA
+
+  public function iniciarTrabalhoPeca(): void
+  {
+    $this->invalidarPorConclusao( "Iniciar trabalho em peça concluida." );
+    $this->invalidarPorAbortamento( "Iniciar trabalho em peça abortada." );
+
+    $this->estado = EPecaEstado::Progredinte;
+    return;
+  }
+
+  public function suspenderTrabalhoPeca(): void
+  {
+    $this->invalidarPorConclusao( "Suspender trabalho em peça concluida." );
+    $this->invalidarPorAbortamento( "Suspender trabalho em peça abortada." );
+
+    if ( $this->estaProgredinte() )
     {
-        $this->id = $id;
-        $this->descricao = $descricao;
-
-        $this->tipo = $tipo;
-        $this->estado = $estado;
-
-        $this->prazo = $prazo;
-        $this->insumos = $insumos;
+      $this->estado = EPecaEstado::Pendente;
+      return;
     }
+    throw new \Exception( "Apenas peças em progresso podem ser suspensas.");
+  }
 
-    // MANIPULAÇÃO DE ESTADOS DA PEÇA
+  public function concluirPeca(): void
+  {
+    $this->invalidarPorConclusao( "Concluir peça já concluida." );
+    $this->invalidarPorAbortamento( "Concluir peça abortada." );
 
-    public function iniciarTrabalhoPeca(): void
+    if ( $this->estaProgredinte() )
     {
-        $this->invalidarPorConclusao( "Iniciar trabalho em peça concluida." );
-        $this->invalidarPorAbortamento( "Iniciar trabalho em peça abortada." );
-
-        $this->estado = EPecaEstado::Progredinte;
-        return;
+      $this->estado = EPecaEstado::Concluida;
+      return;
     }
+    throw new \Exception( "Apenas peças em progresso podem ser concluídas.");
+  }
 
-    public function suspenderTrabalhoPeca(): void
+  public function abortarPeca(): void
+  {
+    $this->invalidarPorConlusao( "Abortar peça já concluida." );
+    $this->invalidarPorAbortamento( "Abortar peça já abortada." );
+
+    if ( !$this->estaConcluida() )
     {
-        $this->invalidarPorConclusao( "Suspender trabalho em peça concluida." );
-        $this->invalidarPorAbortamento( "Suspender trabalho em peça abortada." );
-
-        if ( $this->estaProgredinte() )
-        {
-            $this->estado = EPecaEstado::Pendente;
-            return;
-        }
-        throw new LogicException( get_class($this) . ": Apenas peças em progresso podem ser suspensas.");
+      $this->estado = EPecaEstado::Abortada;
+      return;
     }
+    throw new \Exception( "apenas peças não concluidas podem ser abortadas." );
+  }
 
-    public function concluirPeca(): void
+  // MANIPULAÇÃO DE TIPOLOGIA DA PEÇA
+
+  public function definirTipo( EPecaTipo $tipo ): void
+  {
+    $this->tipo = $tipo;
+  }
+
+  public function obterTipo(): EPecaTipo
+  {
+    return $this->tipo;
+  }
+
+  public function obterEstado(): EPecaEstado
+  {
+    return $this->estado;
+  }
+
+  // GETTERS PRINCIPAIS
+
+  public function obterId(): string
+  {
+    return $this->id;
+  }
+
+  public function obterDescricao(): string
+  {
+    return $this->descricao;
+  }
+
+  public function obterTipo(): string
+  {
+    return $this->tipo;
+  }
+
+  public function obterEstado(): string
+  {
+    return $this->estado;
+  }
+
+  public function obterPrazo(): string
+  {
+    return $this->prazo->obterPrazo();
+  }
+
+  // TELL. Don't ask
+  // MANIPULAÇÃO DA COLEÇÃO DE INSUMOS DA PEÇA
+
+  public function adicionarInsumo( AInsumo $insumo ): void
+  {
+    try
     {
-        $this->invalidarPorConclusao( "Concluir peça já concluida." );
-        $this->invalidarPorAbortamento( "Concluir peça abortada." );
-
-        if ( $this->estaProgredinte() )
-        {
-            $this->estado = EPecaEstado::Concluida;
-            return;
-        }
-        throw new LogicException( get_class($this) . ": Apenas peças em progresso podem ser concluídas.");
+      $this->insumos->adicionar( $insumo );
     }
-
-    public function abortarPeca(): void
+    catch ( \Exception $e )
     {
-        $this->invalidarPorConlusao( "Abortar peça já concluida." );
-        $this->invalidarPorAbortamento( "Abortar peça já abortada." );
-
-        if ( !$this->estaConcluida() )
-        {
-            $this->estado = EPecaEstado::Abortada;
-            return;
-        }
-        throw new LogicException( get_class($this) . ": apenas peças não concluidas podem ser abortadas." );
+      error_log( $e );
     }
+  }
 
-    // MANIPULAÇÃO DE TIPOLOGIA DA PEÇA
-
-    public function definirTipo( EPecaTipo $tipo ): void
+  public function removerInsumo( int $id ): void
+  {
+    try
     {
-        $this->tipo = $tipo;
+      return $this->insumos->removerPorId( $id );
     }
-
-    public function obterTipo(): EPecaTipo
+    catch ( \Exception $e )
     {
-        return $this->tipo;
+      error_log( $e );
     }
+  }
 
-    public function obterEstado(): EPecaEstado
+  public function substituirInsumo( int $id, AInsumo $substituto ): void
+  {
+    try
     {
-        return $this->estado;
+      $this->insumos->substituirPorId( $id, $substituto );
     }
-
-    public function obterEnumeracaoDeTipos(): string
+    catch ( \Exception $e )
     {
-        $mapa = [];
-
-        foreach ( EPecaTipo::cases() as $caso )
-        {
-            $mapa[$caso->name] = $case->value;
-        }
-
-        return json_encode( $mapa );
+      error_log( $e );
     }
+  }
 
-    // GETTERS
+  // GETTERS InsumosColecao<AInsumos>
 
-    public function obterEnumeracaoDeEstados(): string
+  public function obterCustoTodosInsumos(): float
+  {
+    try
     {
-        $mapa = [];
-
-        foreach ( EPecaEstado::cases() as $caso )
-        {
-            $mapa[$caso->name] = $case->value;
-        }
-
-        return json_encode( $mapa );
+      return $this->insumos->obterSomatorioCustoTodosInsumos();
     }
-
-    public function obterIdentificador(): string
+    catch ( \Exception $e )
     {
-        return $this->id;
+      error_log( $e );
     }
+  }
 
-    // MANIPULAÇÃO DA COLEÇÃO DE INSUMOS DA PEÇA
-
-    public function computarCustoDosInsumos(): float
+  public function obterQuantidadeUnidades(): int
+  {
+    try
     {
-        return $this->insumos->computarSomaPrecosInsumos();
+      return $this->obterContagemInsumosUnitarios();
     }
-
-    public function adicionarInsumo( AInsumo $insumo ): void
+    catch ( \Exception $e )
     {
-        $this->insumos->adicionar( $insumo );
+      error_log( $e );
     }
+  }
 
-    public function removerInsumo(): void
-    {}
-
-    // PRAZOS (A peça com o prazo mais distante em uma coleção determina estado temporal do serviço)
-
-    public function definirPrazo( string $data ): void
+  public function obterAreaTecido(): float
+  {
+    try
     {
-        $this->prazo->definirPrazo( $data );
+      return $this->insumos->obterSomatorioAreaInsumosQuadrados();
     }
-
-    public function extenderPrazo( string $data ): void
+    catch ( \Exception $e )
     {
-        $this->prazo->extenderPrazo( $data );
+      error_log( $e );
     }
+  }
 
-    public function indeterminarPrazo(): void
+  public function obterColecaoInsumos(): array
+  {
+    try
     {
-        $this->prazo->indeterminarPrazo();
+      return $this->insumos->obterColecao();
     }
-
-    // Coleção superior determina qual é a peça com o maior prazo.
-    public function obterPrazo(): string
+    catch ( \Exception $e )
     {
-        return $this->prazo->obterPrazo();
+      error_log( $e );
     }
+  }
 
-    // MÉTODOS INVALIDATÓRIOS POR ESTADO CORRENTE
-
-    protected function invalidarPorConlusao( string $complemento ): void
+  public function obterQuantidadeTodosInsumos(): int
+  {
+    try
     {
-        if ( $this->estaConcluida() )
-        {
-            throw new Exception( get_class($this) . ": Peça concluida." . $complemento );
-        }
+      return $this->insumos->obterTotalInsumos();
     }
-
-    protected function invalidarPorAbortamento( string $complemento ): void
+    catch ( \Exception $e )
     {
-        if ( $this->estaAbortada() )
-        {
-            throw new Exception( get_class($this) . ": Peça abortada." . $complemento );
-        }
+      error_log( $e );
     }
+  }
 
-    // VERIFICAÇÃO DE ESTADOS SEMÂNTICOS
+  // PRAZOS (A peça com o prazo mais distante em uma coleção determina estado temporal do serviço)
 
-    protected function estaPendente(): bool
+  public function definirPrazo( string $data ): void
+  {
+    try
     {
-        if ( $this->estado === EPecaEstado::Pendente )
-        {
-            return true;
-        }
-        return false;
+      $this->prazo->definirPrazo( $data );
     }
-
-    protected function estaProgredinte(): bool
+    catch ( \Exception $e )
     {
-        if ( $this->estado === EPecaEstado::Progredinte )
-        {
-            return true;
-        }
-        return false;
+      error_log( $e );
     }
+  }
 
-    protected function estaConcluida(): bool
+  public function extenderPrazo( string $data ): void
+  {
+    try
     {
-        if ( $this->estado === EPecaEstado::Concluida )
-        {
-            return true;
-        }
-        return false;
+      $this->prazo->extenderPrazo( $data );
     }
+    catch ( \Exception $e )
+    {
+      error_log( $e );
+    }
+  }
 
-    protected function estaAbortada(): bool
+  public function indeterminarPrazo(): void
+  {
+    try
     {
-        if ( $this->estado === EPecaEstado::Abortada )
-        {
-            return true;
-        }
-        return false;
+      $this->prazo->indeterminarPrazo();
     }
+    catch ( \Exception $e )
+    {
+      error_log( $e );
+    }
+  }
+
+  public function restaurarPrazo(): void
+  {
+    try
+    {
+      $this->prazo->restaurarPrazo();
+    }
+    catch ( \Exception $e )
+    {
+      error_log( $e );
+    }
+  }
+
+  // GETTERS Prazo
+
+  public function obterPrazo(): string
+  {
+    try
+    {
+      return $this->prazo->obterPrazo();
+    }
+    catch ( \Exception $e )
+    {
+      error_log( $e );
+    }
+  }
+
+  // MÉTODOS INVALIDATÓRIOS POR ESTADO CORRENTE
+
+  protected function invalidarPorConlusao( string $complemento ): void
+  {
+    if ( $this->estaConcluida() )
+    {
+      throw new Exception( "Peça concluida." . $complemento );
+    }
+  }
+
+  protected function invalidarPorAbortamento( string $complemento ): void
+  {
+    if ( $this->estaAbortada() )
+    {
+      throw new Exception( "Peça abortada." . $complemento );
+    }
+  }
+
+  // VERIFICAÇÃO DE ESTADOS SEMÂNTICOS
+
+  protected function estaPendente(): bool
+  {
+    if ( $this->estado === EPecaEstado::Pendente )
+    {
+      return true;
+    }
+    return false;
+  }
+
+  protected function estaProgredinte(): bool
+  {
+    if ( $this->estado === EPecaEstado::Progredinte )
+    {
+      return true;
+    }
+    return false;
+  }
+
+  protected function estaConcluida(): bool
+  {
+    if ( $this->estado === EPecaEstado::Concluida )
+    {
+      return true;
+    }
+    return false;
+  }
+
+  protected function estaAbortada(): bool
+  {
+    if ( $this->estado === EPecaEstado::Abortada )
+    {
+      return true;
+    }
+    return false;
+  }
 }

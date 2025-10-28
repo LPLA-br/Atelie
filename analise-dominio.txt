@@ -227,6 +227,9 @@ CRIAÇÃO-Pendente->Progredinte------>Concluido
         |         |          |______Concluido_parcialmente
         |_________|_________________Abortado
 
+Toda nova Peça cria-se Pendente.
+Peça resgatada tem estado arbitrário.
+
 5.4 CICLO DE VIDA DE UMA PEÇA
 
 CRIAÇÃO->Pendente->Progredinte->Concluida
@@ -238,4 +241,28 @@ Insumo = nome
 
 5.6 MÉTODO ANALÍTICO SIMPLIFICADO
 coletarEvidencias->analisar->ordenar->enumerarConclusoes();
+
+5.7 MODELO DE APLICAÇÃO WEB NA ARQUITETURA DE CAMADAS
+MODEL-DRIVEN-DESIGN (página 50)
+  express model with ENTITIES
+    that access REPOSITORIES
+    that encapsulate with AGGREGATES
+    that act as root of   AGGREGATES
+    that uses VALUE OBJECTS encapsulated with AGGREGATES
+      that encapsulate with FACTORIES
+  AGGREGATES that encapsulate with FACTORIES
+
+DOMÍNIO ISOLADO POR ARQUITETURA DE CAMADAS
+
+expressar modelo com SERVIÇES
+
+AGGREGATES = relação de AGREGAÇÃO OOP
+COLLECTION = estrutura de dados para N objetos de mesmo tipo
+
+______________________
+|User interface
+|Application Layer
+|Domain Layer
+|Infrastructure Layer
+|_____________________
 
