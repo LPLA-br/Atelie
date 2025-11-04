@@ -90,14 +90,13 @@ class InsumosColecao
     throw new \Exception( "elemento com id \"" . $id . "\" para ser substituido não existe." );
   }
 
-  /*@ignore*/
   public function substituirPorNome( string $nome, AInsumo $novo ): void
   {
     $anterior = $this->buscarIndicieInsumoPeloNome( $nome );
 
-    if ( $indicie !== -1 )
+    if ( $anterior !== -1 )
     {
-      $this->insumos[ $indicie ] = $novo;
+      $this->insumos[ $anterior ] = $novo;
       return;
     }
     throw new \Exception( "elemento com nome \"" . $nome . "\" para ser substituido não existe." );

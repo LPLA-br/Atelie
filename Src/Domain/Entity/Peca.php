@@ -20,8 +20,11 @@ class Peca
   private InsumosColecao $insumos;
 
   public function __construct(
-    int $id, string $descricao, 
-    EPecaTipo $tipo, EPecaEstado $estado,
+    int $id,
+    string $descricao, 
+    EPecaTipo $tipo,
+    EPecaEstado $estado,
+    Prazo $prazo,
     InsumosColecao $insumo )
   {
     $this->id = $id;
@@ -31,7 +34,7 @@ class Peca
     $this->estado = $estado;
 
     $this->prazo = $prazo;
-    $this->insumos = $insumos;
+    $this->insumos = $insumo;
   }
 
   // MANIPULAÇÃO DE ESTADOS DA PEÇA
@@ -71,9 +74,10 @@ class Peca
     throw new \Exception( "Apenas peças em progresso podem ser concluídas.");
   }
 
+  /* Requer forte confirmação */
   public function abortarPeca(): void
   {
-    $this->invalidarPorConlusao( "Abortar peça já concluida." );
+    $this->invalidarPorConclusao( "Abortar peça já concluida." );
     $this->invalidarPorAbortamento( "Abortar peça já abortada." );
 
     if ( !$this->estaConcluida() )
@@ -91,6 +95,19 @@ class Peca
     $this->tipo = $tipo;
   }
 
+
+  // GETTERS
+
+  public function obterId(): int
+  {
+    return $this->id;
+  }
+
+  public function obterDescricao(): string
+  {
+    return $this->descricao;
+  }
+
   public function obterTipo(): EPecaTipo
   {
     return $this->tipo;
@@ -101,73 +118,17 @@ class Peca
     return $this->estado;
   }
 
-  // GETTERS PRINCIPAIS
-
-  public function obterId(): string
-  {
-    return $this->id;
-  }
-
-  public function obterDescricao(): string
-  {
-    return $this->descricao;
-  }
-
-  public function obterTipo(): string
-  {
-    return $this->tipo;
-  }
-
-  public function obterEstado(): string
-  {
-    return $this->estado;
-  }
-
   public function obterPrazo(): string
   {
-    return $this->prazo->obterPrazo();
-  }
-
-  // TELL. Don't ask
-  // MANIPULAÇÃO DA COLEÇÃO DE INSUMOS DA PEÇA
-
-  public function adicionarInsumo( AInsumo $insumo ): void
-  {
     try
     {
-      $this->insumos->adicionar( $insumo );
+      return $this->prazo->obterPrazo();
     }
     catch ( \Exception $e )
     {
       error_log( $e );
     }
   }
-
-  public function removerInsumo( int $id ): void
-  {
-    try
-    {
-      return $this->insumos->removerPorId( $id );
-    }
-    catch ( \Exception $e )
-    {
-      error_log( $e );
-    }
-  }
-
-  public function substituirInsumo( int $id, AInsumo $substituto ): void
-  {
-    try
-    {
-      $this->insumos->substituirPorId( $id, $substituto );
-    }
-    catch ( \Exception $e )
-    {
-      error_log( $e );
-    }
-  }
-
-  // GETTERS InsumosColecao<AInsumos>
 
   public function obterCustoTodosInsumos(): float
   {
@@ -229,6 +190,45 @@ class Peca
     }
   }
 
+  // TELL. Don't ask
+  // MANIPULAÇÃO DA COLEÇÃO DE INSUMOS DA PEÇA
+
+  public function adicionarInsumo( AInsumo $insumo ): void
+  {
+    try
+    {
+      $this->insumos->adicionar( $insumo );
+    }
+    catch ( \Exception $e )
+    {
+      error_log( $e );
+    }
+  }
+
+  public function removerInsumo( int $id ): void
+  {
+    try
+    {
+      $this->insumos->removerPorId( $id );
+    }
+    catch ( \Exception $e )
+    {
+      error_log( $e );
+    }
+  }
+
+  public function substituirInsumo( int $id, AInsumo $substituto ): void
+  {
+    try
+    {
+      $this->insumos->substituirPorId( $id, $substituto );
+    }
+    catch ( \Exception $e )
+    {
+      error_log( $e );
+    }
+  }
+
   // PRAZOS (A peça com o prazo mais distante em uma coleção determina estado temporal do serviço)
 
   public function definirPrazo( string $data ): void
@@ -279,23 +279,9 @@ class Peca
     }
   }
 
-  // GETTERS Prazo
+  // INVALIDAÇÃO DE AÇÕES SEM SENTIDO NO DOMÍNIO
 
-  public function obterPrazo(): string
-  {
-    try
-    {
-      return $this->prazo->obterPrazo();
-    }
-    catch ( \Exception $e )
-    {
-      error_log( $e );
-    }
-  }
-
-  // MÉTODOS INVALIDATÓRIOS POR ESTADO CORRENTE
-
-  protected function invalidarPorConlusao( string $complemento ): void
+  protected function invalidarPorConclusao( string $complemento ): void
   {
     if ( $this->estaConcluida() )
     {
