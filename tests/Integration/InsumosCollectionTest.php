@@ -76,23 +76,6 @@ final class InsumosCollectionTest extends TestCase
     $this->assertEquals( $resultado, NULL );
   }
 
-  public function testRemocaoPorNomeFunciona()
-  {
-    $insumos = [
-      new InsumoUnitario( 162, "botão",    new Preco( 0.50, 2 ) ),
-      new InsumoUnitario( 203, "ziper",    new Preco( 1.0, 5 ) ),
-      new InsumoQuadrado( 332, "tecido A", new Preco( 120.0, 2.1 ) ),
-      new InsumoQuadrado( 441, "tecido B", new Preco( 80.0, 1.5 ) ),
-    ];
-
-    $ic = new InsumosColecao( $insumos );
-
-    $ic->removerPorNome( "botão" );
-    $resultado = $ic->buscarPorNome( "botão" );
-
-    $this->assertEquals( $resultado, NULL );
-  }
-
   public function testSubstituirPorIdFunciona()
   {
     $insumos = [
@@ -104,7 +87,7 @@ final class InsumosCollectionTest extends TestCase
 
     $ic = new InsumosColecao( $insumos );
 
-    $ic->substituirPorId( 441 ,new InsumoUnitario( 441, "grampo", new Preco( 0.25, 5 ) ) );
+    $ic->substituirPorId( 441 , new InsumoUnitario( 441, "grampo", new Preco( 0.25, 5 ) ) );
     $resultado = $ic->buscarPorId( 441 );
 
     $this->assertEquals( $resultado->obterNome(), "grampo" );
@@ -240,6 +223,22 @@ final class InsumosCollectionTest extends TestCase
     $ic = new InsumosColecao( $insumos );
     $this->expectException( Throwable::class );
     $ic->adicionar( new InsumoUnitario( 007, "botão", new Preco( 0.50, 2 ) ) );
+  }
+
+  public function testRemocaoPorNomeObjetoDeletadoInexistenteExcepciona()
+  {
+    $insumos = [
+      new InsumoUnitario( 162, "botão",    new Preco( 0.50, 2 ) ),
+      new InsumoUnitario( 203, "ziper",    new Preco( 1.0, 5 ) ),
+      new InsumoQuadrado( 332, "tecido A", new Preco( 120.0, 2.1 ) ),
+      new InsumoQuadrado( 441, "tecido B", new Preco( 80.0, 1.5 ) ),
+    ];
+
+    $ic = new InsumosColecao( $insumos );
+
+    $ic->removerPorNome( "botão" );
+    $this->expectException( Throwable::class );
+    $resultado = $ic->buscarPorNome( "botão" );
   }
 
 }

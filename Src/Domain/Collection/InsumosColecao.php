@@ -2,6 +2,9 @@
 
 namespace Src\Domain\Collection;
 
+use Src\Domain\Collection\ACollection;
+use Src\Domain\Entity\ITemObterId;
+
 use Src\Domain\Entity\AInsumo;
 use Src\Domain\Entity\InsumoUnitario;
 use Src\Domain\Entity\InsumoQuadrado;
@@ -10,124 +13,91 @@ use Src\Domain\Entity\InsumoQuadrado;
  *  onde cada objeto representa N insumos
  *  de uma determinada caracteristica.
  *  */
-class InsumosColecao
+class InsumosColecao extends ACollection
 {
 
-  private array $insumos;
   private float $custo;
 
+  const string TIPO = "AInsumo";
+
+  /** Herdeira de ACollection não exige className */
   public function __construct( array $insumos )
   {
-    $this->validarTiposObjetos( $insumos );
     $this->validarUnicidadeDeNomes( $insumos );
-    $this->validarUnicidadeDeIds( $insumos );
+    parent::__construct( $insumos, InsumosColecao::TIPO );
 
-    $this->insumos = $insumos;
     $this->custo = $this->obterSomatorioCustoTodosInsumos();
   }
 
-  public function adicionar( AInsumo $objeto ): void
+  public function adicionar( AInsumo $insumo ): void
   {
-    $this->validarNovoInsumo( $objeto );
-    array_push( $this->insumos, $objeto );
+    $this->validarUnicidadeDeIdsParaNovoElemento( $insumo );
+    $this->validarUnicidadeDeNomeNovoInsumo( $insumo );
+    array_push( $this->lista, $insumo );
   }
 
-  public function buscarPorId( int $id ): AInsumo | NULL
+  public function buscarPorNome( string $nome ): AInsumo
   {
-    $indicie = $this->buscarIndicieInsumoPeloId( $id );
+    $indicie = $this->buscarLinearmenteIndicieInsumoPeloNome( $nome );
 
-    if ( $indicie !== -1 )
+    if ( !($indicie !== -1) )
     {
-      return $this->insumos[ $indicie ];
+      throw new \Exception( "elemento com nome \"" . $nome . "\" buscado não existe." );
     }
-    return NULL;
+
+    return $this->lista[ $indicie ];
   }
 
-  public function buscarPorNome( string $nome ): AInsumo | NULL
+  public function removerPorNome( string $nome ): AInsumo
   {
-    $this->validarStringBusca( $nome );
-    
-    $indicie = $this->buscarIndicieInsumoPeloNome( $nome );
+    $indicie = $this->buscarLinearmenteIndicieInsumoPeloNome( $nome );
 
-    if ( $indicie !== -1 )
+    if ( !($indicie !== -1) )
     {
-      return $this->insumos[ $indicie ];
+      throw new \Exception( "elemento com nome \"" . $nome . "\" para ser removido não existe." );
     }
-    return NULL;
+
+    return array_splice( $this->lista, $indicie, 1 )[0];
   }
 
-  public function removerPorId( int $id ): AInsumo | NULL
+  public function substituirPorNome( string $nome, AInsumo $novo ): AInsumo
   {
-    $indicie = $this->buscarIndicieInsumoPeloId( $id );
+    $anterior = $this->buscarLinearmenteIndicieInsumoPeloNome( $nome );
 
-    if ( $indicie !== -1 )
+    if ( !($anterior !== -1) )
     {
-      return array_splice( $this->insumos, $indicie, 1 )[0];
+      throw new \Exception( "elemento com nome \"" . $nome . "\" para ser substituido não existe." );
     }
-    throw new \Exception( "elemento com id \"" . $id . "\" para ser removido não existe." );
-  }
 
-  public function removerPorNome( string $nome ): AInsumo | NULL
-  {
-    $indicie = $this->buscarIndicieInsumoPeloNome( $nome );
-
-    if ( $indicie !== -1 )
-    {
-      return array_splice( $this->insumos, $indicie, 1 )[0];
-    }
-    throw new \Exception( "elemento com nome \"" . $nome . "\" para ser removido não existe." );
-  }
-
-  public function substituirPorId( int $id, AInsumo $novo ): void
-  {
-    $indicie = $this->buscarIndicieInsumoPeloId( $id );
-
-    if ( $indicie !== -1 )
-    {
-      $this->insumos[ $indicie ] = $novo;
-      return;
-    }
-    throw new \Exception( "elemento com id \"" . $id . "\" para ser substituido não existe." );
-  }
-
-  public function substituirPorNome( string $nome, AInsumo $novo ): void
-  {
-    $anterior = $this->buscarIndicieInsumoPeloNome( $nome );
-
-    if ( $anterior !== -1 )
-    {
-      $this->insumos[ $anterior ] = $novo;
-      return;
-    }
-    throw new \Exception( "elemento com nome \"" . $nome . "\" para ser substituido não existe." );
+    $this->lista[ $anterior ] = $novo;
+    return $this->lista[ $anterior ];
   }
 
   //----------------------------------------------------------------
 
   public function obterSomatorioCustoTodosInsumos(): float
   {
+    $this->validarNumeroMinimoElementos( $this->lista );
     $custo = 0.0;
 
-    if ( $this->eMaiorQueZero() )
+    for ( $i = 0; $i < sizeof( $this->lista ); $i++ )
     {
-      for ( $i = 0; $i < sizeof( $this->insumos ); $i++ )
-      {
-        $custo += $this->insumos[$i]->obterCusto();
-      }
-      return $custo;
+      $custo += $this->lista[$i]->obterCusto();
     }
-    throw new \Exception( "Zero insumos impossibilitam somatorio" );
+
+    return $custo;
   }
 
   public function obterContagemInsumosUnitarios(): int
   {
+    $this->validarNumeroMinimoElementos( $this->lista );
     $contagem = 0;
     
-    for ( $i = 0; $i < sizeof( $this->insumos ); $i++ )
+    for ( $i = 0; $i < sizeof( $this->lista ); $i++ )
     {
-      if ( $this->insumos[ $i ] instanceof InsumoUnitario )
+      if ( $this->lista[ $i ] instanceof InsumoUnitario )
       {
-        $contagem += $this->insumos[ $i ]->obterQuantidadeUnidades();
+        $contagem += $this->lista[ $i ]->obterQuantidadeUnidades();
       }
     }
 
@@ -136,50 +106,27 @@ class InsumosColecao
 
   public function obterSomatorioAreaInsumosQuadrados(): float
   {
+    $this->validarNumeroMinimoElementos( $this->lista );
     $area = 0.0;
     
-    for ( $i = 0; $i < sizeof( $this->insumos ); $i++ )
+    for ( $i = 0; $i < sizeof( $this->lista ); $i++ )
     {
-      if ( $this->insumos[ $i ] instanceof InsumoQuadrado )
+      if ( $this->lista[ $i ] instanceof InsumoQuadrado )
       {
-        $area += $this->insumos[ $i ]->obterMetrosQuadrados();
+        $area += $this->lista[ $i ]->obterMetrosQuadrados();
       }
     }
 
     return $area;
   }
 
-  public function obterColecao(): array
-  {
-    return $this->insumos;
-  }
-
-  public function obterTotalInsumos(): int
-  {
-    return sizeof( $this->insumos );
-  }
-
   //----------------------------------------------------------------
 
-  protected function buscarIndicieInsumoPeloNome( string $nome ): int
+  protected function buscarLinearmenteIndicieInsumoPeloNome( string $nome ): int
   {
-    $this->validarStringBusca( $nome );
-
-    for ( $i = 0; $i < sizeof( $this->insumos ); $i++ )
+    for ( $i = 0; $i < $this->obterNumeroElementos(); $i++ )
     {
-      if ( $this->insumos[$i]->obterNome() == $nome )
-      {
-        return $i;
-      }
-    }
-    return -1;
-  }
-
-  protected function buscarIndicieInsumoPeloId( int $id ): int
-  {
-    for ( $i = 0; $i < sizeof( $this->insumos ); $i++ )
-    {
-      if ( $this->insumos[$i]->obterId() == $id )
+      if ( $this->lista[$i]->obterNome() === $nome )
       {
         return $i;
       }
@@ -189,103 +136,45 @@ class InsumosColecao
 
   //----------------------------------------------------------------
 
-  protected function validarStringBusca( string $proposta ): void
-  {
-    if ( !is_string( $proposta ) && !(strlen($proposta) > 0) )
-    {
-      throw new \Exception( "String de busca inválida: $proposta" );
-    }
-  }
 
-  protected function validarTipoObjeto( $objeto ): void
+  protected function validarUnicidadeDeNomes( array $objetos ): void
   {
-    if ( !$this->eInsumo( $objeto ) )
-    {
-      throw new \Exception( "Objeto não AInsumo detectado." );
-    }
-  }
-
-  protected function validarTiposObjetos( $arrayObjetos ): void
-  {
-    if ( !$this->saoTodosInsumos( $arrayObjetos ) )
-    {
-      throw new \Exception( "Objeto não AInsumo detectado em Array." );
-    }
-  }
-
-  protected function validarUnicidadeDeNomes( $arrayObjetos ): void
-  {
-    if ( !$this->saoTodosPossuidoresNomesDiferentes( $arrayObjetos ) )
+    $this->validarTiposElementos( $objetos, InsumosColecao::TIPO );
+    if ( !$this->saoTodosPossuidoresNomesDiferentes( $objetos ) )
     {
       throw new \Exception( "Array de objetos possui nomes redundântes." );
     }
   }
 
-  protected function validarUnicidadeDeIds( $arrayObjetos ): void
+  protected function validarUnicidadeDeNomeNovoInsumo( AInsumo $proposto ): void
   {
-    if ( !$this->saoTodosIdsDiferentes( $arrayObjetos ) )
+    for ( $i = 0; $i < (sizeof($this->lista)); $i++ )
     {
-      throw new \Exception( "Array de objetos possui conflito de identificadores." );
-    }
-  }
-
-  protected function validarNovoInsumo( AInsumo $proposto ): void
-  {
-    for ( $i = 0; $i < (sizeof($this->insumos)); $i++ )
-    {
-      if ( $this->insumos[ $i ]->obterId() === $proposto->obterId() )
-      {
-        throw new \Exception( "Identificador já existe na coleção." );
-        break;
-      }
-
-      if ( $this->insumos[ $i ]->obterNome() === $proposto->obterNome() )
+      if ( $this->lista[ $i ]->obterNome() === $proposto->obterNome() )
       {
         throw new \Exception( "Nome já existe na coleção." );
-        break;
       }
     }
   }
 
   //---------------------------------------------------------------------
 
-  protected function eInsumo( $objeto ): bool
+  /* Requer garantia de que todos objetos são AInsumo */
+  protected function saoTodosPossuidoresNomesDiferentes( array $objetos ): bool
   {
-    if ( $objeto instanceof AInsumo )
-    {
-      return true;
-    }
-    return false;
-  }
-
-  protected function saoTodosInsumos( $arrayObjetos ): bool
-  {
-    for ( $i = 0; $i < sizeof($arrayObjetos); $i++ )
-    {
-      if ( !$this->eInsumo( $arrayObjetos[ $i ] ) )
-      {
-        return false;
-      }
-      continue;
-    }
-    return true;
-  }
-
-  /* Requer garantia de que todos objetos são Insumos */
-  protected function saoTodosPossuidoresNomesDiferentes( $arrayObjetos ): bool
-  {
+    // dicionário
     $nomes = array();
 
     // inicialização
-    for ( $i = 0; $i < sizeof( $arrayObjetos ); $i++ )
+    for ( $i = 0; $i < sizeof( $objetos ); $i++ )
     {
-      $nomes[ $arrayObjetos[ $i ]->obterNome() ] = 0;
+      $nomes[ $objetos[ $i ]->obterNome() ] = 0;
     }
 
     // busca linear marcando redundâncias
-    for ( $i = 0; $i < sizeof( $arrayObjetos ); $i++ )
+    for ( $i = 0; $i < sizeof( $objetos ); $i++ )
     {
-      $nomes[ $arrayObjetos[ $i ]->obterNome() ] += 1;
+      $nomes[ $objetos[ $i ]->obterNome() ] += 1;
     }
 
     //Mais de um -> false
@@ -297,32 +186,6 @@ class InsumosColecao
       }
     }
 
-    return true;
-  }
-
-  protected function eMaiorQueZero(): bool
-  {
-    if ( sizeof( $this->insumos ) > 0 )
-    {
-      return true;
-    }
-    return false;
-  }
-
-  protected function saoTodosIdsDiferentes( $arrayObjetos ): bool
-  {
-    for ( $i = 0; $i < (sizeof($arrayObjetos)); $i++ )
-    {
-      for ( $j = 0; $j < (sizeof($arrayObjetos)); $j++ )
-      {
-        if ( $i === $j ) continue;
-
-        if ( $arrayObjetos[ $i ] === $arrayObjetos[ $j ] )
-        {
-          return false;
-        }
-      }
-    }
     return true;
   }
 

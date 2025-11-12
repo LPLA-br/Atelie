@@ -3,8 +3,9 @@
 namespace Src\Domain\Entity;
 
 use Src\Domain\ValueObject\IPreco;
+use Src\Domain\Entity\ITemObterId;
 
-abstract class AInsumo
+abstract class AInsumo implements ITemObterId
 {
   protected int $id;
   protected string $nome;

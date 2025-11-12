@@ -18,7 +18,7 @@ use Src\Domain\Entity\Peca as Peca;
 
 /* Este teste considera que testes de classes folha e galhos
  * dependidos foram testados. Este teste não utiliza mocks. */
-final class PecasTest extends TestCase
+final class PecasCollectionTest extends TestCase
 {
   public function testInstanciacaoNormalFunciona()
   {
