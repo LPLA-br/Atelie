@@ -122,7 +122,7 @@ class InsumosColecao extends ACollection
 
   //----------------------------------------------------------------
 
-  protected function buscarLinearmenteIndicieInsumoPeloNome( string $nome ): int
+  private function buscarLinearmenteIndicieInsumoPeloNome( string $nome ): int
   {
     for ( $i = 0; $i < $this->obterNumeroElementos(); $i++ )
     {
@@ -137,7 +137,7 @@ class InsumosColecao extends ACollection
   //----------------------------------------------------------------
 
 
-  protected function validarUnicidadeDeNomes( array $objetos ): void
+  private function validarUnicidadeDeNomes( array $objetos ): void
   {
     $this->validarTiposElementos( $objetos, InsumosColecao::TIPO );
     if ( !$this->saoTodosPossuidoresNomesDiferentes( $objetos ) )
@@ -146,7 +146,7 @@ class InsumosColecao extends ACollection
     }
   }
 
-  protected function validarUnicidadeDeNomeNovoInsumo( AInsumo $proposto ): void
+  private function validarUnicidadeDeNomeNovoInsumo( AInsumo $proposto ): void
   {
     for ( $i = 0; $i < (sizeof($this->lista)); $i++ )
     {
@@ -160,7 +160,7 @@ class InsumosColecao extends ACollection
   //---------------------------------------------------------------------
 
   /* Requer garantia de que todos objetos são AInsumo */
-  protected function saoTodosPossuidoresNomesDiferentes( array $objetos ): bool
+  private function saoTodosPossuidoresNomesDiferentes( array $objetos ): bool
   {
     // dicionário
     $nomes = array();

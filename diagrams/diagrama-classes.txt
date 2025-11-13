@@ -1,0 +1,247 @@
+
+@startuml
+!include ./diagrama-class-relacoes.txt
+class ServicoCostureira
+{
+  - int id;
+  - EServicoTipo tipo;
+  - EServicoEstado estado;
+  - PecasColecao pecas;
+  + construct( int id, ?EServicoTipo tipo, ?EServicoEstado estado, ?PecasColecao pecas )
+  + iniciar(): void
+  + continuar(): void
+  + tornarPedente(): void
+  + concluir(): void
+  + abortar(): void
+  + definirTipo( EServicoTipo tipo ): void
+  + alterarTipo( EServicoTipo tipo ): void
+  + computarCustoTodasPecas(): void
+  + obterQuantidadeDePecasPendentes(): int
+  + adicionarPeca( IPeca peca ): void
+  + removerPeca(): void
+  # invalidarAcaoPorEstadoPendente( string mensagem ): void
+  # invalidarAcaoPorEstadoProgredinte( string mensagem ): void
+  # invalidarAcaoPorEstadoConcluido( string mensagem ): void
+  # invalidarAcaoPorEstadoConcluidoParcialmente( string mensagem ): void
+  # invalidarAcaoPorEstadoAbortado( string mensagem ): void
+  # estaProgredinte(): bool
+  # estaPendente(): bool
+  # estaConcluido(): bool
+  # estaConcluidoParcialmente(): bool
+  # estaAbortado(): bool
+}
+class Prazo
+{
+  # string FORMATO
+  # string dataPrazo;
+  # array anoMesDia; //hash-table
+  # bool indeterminado;
+  # string INDETERMINACAO
+  + construct( string prazo )
+  + definirPrazo( string prazo ): void
+  + extenderPrazo( string prazo ): void
+  + indeterminarPrazo(): void
+  + restaurarPrazo(): void
+  + obterFormatoAdotado(): string
+  + obterPrazo(): string
+  + estaIndeterminado(): bool
+  + estaPrazoUltrapassado(): bool
+  # estaNoPrazo( string dataProposta ): bool
+  # estaAlemDoPrazoCorrente( string dataProposta ): bool
+  # eValidoAnoMesDia( string data ): bool
+  # segmentarAnoMesDiaParaObjeto( string data ): array
+  # validarAcaoSobrePrazoDeterminado(): void
+  # dispararExcecaoDeFormatoInvalido(): void
+  # dispararExcecaoDePrazoNoPassado(): void
+}
+class Preco
+{
+  - float preco; //preço associado a unidade abstrata d'algo.
+  - float quantidade; //float -> POG
+  - float total;
+  + construct( float preco, float quantidade )
+  + alterarPreco( float proposta ): void
+  + aumentarQuantidade( float numero ): void
+  + diminuirQuantidade( float numero ): void
+  + obterPreco(): float
+  + obterQuantidade(): float
+  + obterTotal(): float
+  # computarTotal(): void
+  # validarValorPositivo( float proposta ): void
+  # validarDiminuicaoQuantidade( float quantidade ): void
+  # eQuantidadeDiminutivel( float quantidade ): bool
+}
+interface IPreco
+{
+    + alterarPreco( float proposta ): void;
+    + aumentarQuantidade( float quantidade ): void;
+    + diminuirQuantidade( float quantidade ): void;
+    + obterPreco(): float;
+    + obterQuantidade(): float;
+    + obterTotal(): float;
+}
+class Peca
+{
+  - int id;
+  - string descricao;
+  - EPecaTipo tipo;
+  - EPecaEstado estado;
+  - Prazo prazo;
+  - InsumosColecao insumos;
+  + construct(
+  + iniciarTrabalhoPeca(): void
+  + suspenderTrabalhoPeca(): void
+  + concluirPeca(): void
+  + abortarPeca(): void
+  + definirTipo( EPecaTipo tipo ): void
+  + obterId(): int
+  + obterDescricao(): string
+  + obterTipo(): EPecaTipo
+  + obterEstado(): EPecaEstado
+  + obterPrazo(): string
+  + obterCustoTodosInsumos(): float
+  + obterQuantidadeUnidades(): int
+  + obterAreaTecido(): float
+  + obterColecaoInsumos(): array
+  + obterQuantidadeTodosInsumos(): int
+  + adicionarInsumo( AInsumo insumo ): void
+  + removerInsumo( int id ): void
+  + substituirInsumo( int id, AInsumo substituto ): void
+  + definirPrazo( string data ): void
+  + extenderPrazo( string data ): void
+  + indeterminarPrazo(): void
+  + restaurarPrazo(): void
+  # invalidarPorConclusao( string complemento ): void
+  # invalidarPorAbortamento( string complemento ): void
+  # estaPendente(): bool
+  # estaProgredinte(): bool
+  # estaConcluida(): bool
+  # estaAbortada(): bool
+}
+interface ITemObterId
+{
+  + obterId(): int;
+}
+class InsumoQuadrado
+{
+  + construct( int id, string nome, IPreco preco )
+  + aumentarArea( float aumento ): void
+  + diminuirArea( float diminuicao ): void
+  + obterMetrosQuadrados(): float
+  # validarAreaQuadrada( float proposta ): void
+  - validarDiminuicaoExcessiva( float proposta ): void
+  # ePositivaArea( float proposta ): bool
+  - eDiminutivel( int proposta ): bool
+}
+class Cliente
+{
+    # string nome;
+    # array servicos
+    + construct( string nome )
+}
+abstract class AInsumo
+{
+  # int id;
+  # string nome;
+  # IPreco preco;
+  + construct( int id, string nome, IPreco preco )
+  + obterId(): int
+  + obterNome(): string
+  + obterCusto(): float
+  # validarNome( string proposta ): void
+  # eNome( string proposta ): bool
+}
+class InsumoUnitario
+{
+  + construct( int id, string nome, IPreco preco )
+  + aumentarUnidades( int aumento ): void
+  + diminuirUnidades( int diminuicao ): void
+  + obterQuantidadeUnidades(): int
+  + obterPrecoUnidade(): float
+  - validarUnidades( int numero ): void
+  - validarDiminuicaoExcessiva( int proposta ): void
+  - ePositivaUnidades( int numero ): bool
+  - eDiminutivel( int proposta ): bool
+}
+class InsumosColecao
+{
+  - float custo;
+  + construct( array insumos )
+  + adicionar( AInsumo insumo ): void
+  + buscarPorNome( string nome ): AInsumo
+  + removerPorNome( string nome ): AInsumo
+  + substituirPorNome( string nome, AInsumo novo ): AInsumo
+  + obterSomatorioCustoTodosInsumos(): float
+  + obterContagemInsumosUnitarios(): int
+  + obterSomatorioAreaInsumosQuadrados(): float
+  - buscarLinearmenteIndicieInsumoPeloNome( string nome ): int
+  - validarUnicidadeDeNomes( array objetos ): void
+  - validarUnicidadeDeNomeNovoInsumo( AInsumo proposto ): void
+  - saoTodosPossuidoresNomesDiferentes( array objetos ): bool
+}
+class PecasColecao
+{
+  + construct( array pecas )
+  + adicionar( Peca peca ): void
+  + buscarPeloEstado( EPecaEstado estado ): Peca | array | NULL
+  + buscarPeloTipo( EPecaTipo tipo ): Peca | array | NULL
+  + computarCustoTotal(): int
+  + obterPecaMaiorPrazo(): string
+  - buscarLinearmentePeloEstado( EPecaEstado estado ): Peca | array | NULL
+  - buscarLinearmentePeloTipo( EPecaTipo tipo ): Peca | array | NULL
+}
+abstract class ACollection
+{
+  # array lista;
+  + construct( array colecao, string className )
+  + buscarPorId( int id ): ITemObterId | NULL
+  + removerPorId( int id ): ITemObterId | NULL
+  + substituirPorId( int id, ITemObterId proposta ): ITemObterId | NULL
+  + obterColecao(): array
+  + obterNumeroElementos(): int
+  # buscarLinearmentePorId( int id ): ITemObterId | NULL
+  # buscarLinearmenteIndicieElementoPeloId( int id ): int
+  # validarTipoElemento( ITemObterId objeto, string className ): void
+  # validarTiposElementos( array objetos, string className ): void
+  # validarTipoNovoElemento( ITemObterId objeto, string className ): void
+  # validarUnicidadeDeIds( array objetos ): void
+  # validarUnicidadeDeIdsParaNovoElemento( ITemObterId novoElemento ): void
+  # validarNumeroMinimoElementos( array objetos ): void
+  # eTipoCorreto( ITemObterId objeto, string className ): bool
+  # saoTodosTipoCorreto( array objetos, string className ): bool
+  - saoTodosIdsDiferentes( array objetos ): bool
+  - possuiElementoIdDiferenteParaColecao( ITemObterId objeto ): bool
+}
+enum EPecaTipo
+{
+ Vestido
+ Calsa
+ Calsao
+ Camisa
+ Camiseta
+ Mochila
+ Cueca
+ Cinto
+}
+enum EServicoEstado
+{
+ Pedente
+ Progredinte
+ Concluido
+ Concluido_parcialmente
+ Abortado
+}
+enum EPecaEstado
+{
+ Pendente
+ Progredinte
+ Concluida
+ Abortada
+}
+enum EServicoTipo
+{
+ Confeccao
+ Conserto
+ Confeccao_e_concerto
+}
+@enduml
