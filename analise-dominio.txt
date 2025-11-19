@@ -149,12 +149,13 @@ Insumo
 
 
 2.4 DIAGRAMA HIERARQUICO DO ESTADO DA ARTE
-Cliente
-  Servico
-    ColecaoPecas
-      Pecas
-        ColecaoInsumos
-          Insumos
+
+ServicoCostureira
+|_Cliente
+|_ColecaoPecas
+  |_Pecas
+    |_ColecaoInsumos
+      |_Insumos
 
 -----------------------------------------------------------------------
 3.ENDPOINTS HTTP

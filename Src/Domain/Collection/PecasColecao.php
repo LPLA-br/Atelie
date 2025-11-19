@@ -46,6 +46,8 @@ class PecasColecao extends ACollection
     return $custo;
   }
 
+  //-------------------------------
+
   public function obterPecaMaiorPrazo(): string
   {
     $this->validarNumeroMinimoElementos( $this->lista );
@@ -60,8 +62,37 @@ class PecasColecao extends ACollection
         continue;
       }
     }
-
     return $maiorPrazoAtual;
+  }
+
+  public function obterPecasPendentes(): Peca | array | NULL
+  {
+    return $this->buscarLinearmentePeloEstado( EPecaEstado::Pendente );
+  }
+
+  public function obterQuantidadePecasPendentes(): int
+  {
+    return sizeof($this->buscarLinearmentePeloEstado( EPecaEstado::Pendente ));
+  }
+
+  public function obterPecasConcluidas(): Peca | array | NULL
+  {
+    return $this->buscarLinearmentePeloEstado( EPecaEstado::Concluida );
+  }
+
+  public function obterQuantidadePecasConcluidas(): int
+  {
+    return sizeof($this->buscarLinearmentePeloEstado( EPecaEstado::Concluida ));
+  }
+
+  public function obterPecasProgredintes(): Peca | array | NULL
+  {
+    return $this->buscarLinearmentePeloEstado( EPecaEstado::Progredinte );
+  }
+
+  public function obterQuantidadePecasProgredintes(): int
+  {
+    return sizeof($this->buscarLinearmentePeloEstado( EPecaEstado::Progredinte ));
   }
 
   //--------------------------------

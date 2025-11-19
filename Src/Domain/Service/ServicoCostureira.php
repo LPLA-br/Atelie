@@ -11,19 +11,23 @@ use Src\Domain\Collection\PecasColecao;
 class ServicoCostureira
 {
   private int $id;
+  private int $idUsuario;
 
   private EServicoTipo $tipo;
   private EServicoEstado $estado;
 
   private PecasColecao $pecas;
 
-  public function __construct(  int $id,
+  public function __construct(
+    int $id,
+    int $idUsuario
     EServicoTipo $tipo,
     EServicoEstado $estado,
     PecasColecao $pecas
   )
   {
     $this->id = $id;
+    $this->id = $idUsuario;
 
     $this->tipo = $tipo;
     $this->estado = $estado;
@@ -108,9 +112,11 @@ class ServicoCostureira
 
   public function obterQuantidadeDePecasPendentes(): int
   {
-    // Coleção de peças
+    $pecasPendentes;
     return 0;
   }
+
+  
 
   public function adicionarPeca( IPeca $peca ): void
   {
