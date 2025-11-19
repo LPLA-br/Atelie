@@ -1,13 +1,13 @@
 Src/Domain/
 ├── Collection
-│   ├── InsumosColecao.php	ok
-│   └── PecasColecao.php
+│   ├── InsumosColecao.php	    ok
+│   └── PecasColecao.php        
 ├── Entity
 │   ├── AInsumo.php             ok
 │   ├── Cliente.php
 │   ├── InsumoQuadrado.php      ok
 │   ├── InsumoUnitario.php      ok
-│   └── Peca.php		progresso
+│   └── Peca.php		            ok
 ├── Enum
 │   ├── EPecaEstado.php
 │   ├── EPecaTipo.php

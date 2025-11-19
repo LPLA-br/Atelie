@@ -1,0 +1,13 @@
+@startchen
+' teste temporario entidade relacionamento
+entity pecas{
+}
+relationship possui_insumo {
+}
+entity insumos {
+}
+
+pecas -N- possui_insumo
+insumos -N- possui_insumo
+
+@endchen

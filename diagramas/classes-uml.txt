@@ -1,13 +1,13 @@
 
 @startuml
-!include ./diagrama-class-relacoes.txt
+!include ./classes-relacoes.txt
 class ServicoCostureira
 {
   - int id;
   - EServicoTipo tipo;
   - EServicoEstado estado;
   - PecasColecao pecas;
-  + construct( int id, ?EServicoTipo tipo, ?EServicoEstado estado, ?PecasColecao pecas )
+  + construct(  int id,
   + iniciar(): void
   + continuar(): void
   + tornarPedente(): void
@@ -19,22 +19,22 @@ class ServicoCostureira
   + obterQuantidadeDePecasPendentes(): int
   + adicionarPeca( IPeca peca ): void
   + removerPeca(): void
-  # invalidarAcaoPorEstadoPendente( string mensagem ): void
-  # invalidarAcaoPorEstadoProgredinte( string mensagem ): void
-  # invalidarAcaoPorEstadoConcluido( string mensagem ): void
-  # invalidarAcaoPorEstadoConcluidoParcialmente( string mensagem ): void
-  # invalidarAcaoPorEstadoAbortado( string mensagem ): void
-  # estaProgredinte(): bool
-  # estaPendente(): bool
-  # estaConcluido(): bool
-  # estaConcluidoParcialmente(): bool
-  # estaAbortado(): bool
+  - invalidarAcaoPorEstadoPendente( string mensagem ): void
+  - invalidarAcaoPorEstadoProgredinte( string mensagem ): void
+  - invalidarAcaoPorEstadoConcluido( string mensagem ): void
+  - invalidarAcaoPorEstadoConcluidoParcialmente( string mensagem ): void
+  - invalidarAcaoPorEstadoAbortado( string mensagem ): void
+  - estaProgredinte(): bool
+  - estaPendente(): bool
+  - estaConcluido(): bool
+  - estaConcluidoParcialmente(): bool
+  - estaAbortado(): bool
 }
 class Prazo
 {
   # string FORMATO
   # string dataPrazo;
-  # array anoMesDia; //hash-table
+  # array anoMesDia;
   # bool indeterminado;
   # string INDETERMINACAO
   + construct( string prazo )
@@ -56,8 +56,8 @@ class Prazo
 }
 class Preco
 {
-  - float preco; //preço associado a unidade abstrata d'algo.
-  - float quantidade; //float -> POG
+  - float preco;
+  - float quantidade;
   - float total;
   + construct( float preco, float quantidade )
   + alterarPreco( float proposta ): void
@@ -185,7 +185,7 @@ class PecasColecao
   + adicionar( Peca peca ): void
   + buscarPeloEstado( EPecaEstado estado ): Peca | array | NULL
   + buscarPeloTipo( EPecaTipo tipo ): Peca | array | NULL
-  + computarCustoTotal(): int
+  + computarCustoTotal(): float
   + obterPecaMaiorPrazo(): string
   - buscarLinearmentePeloEstado( EPecaEstado estado ): Peca | array | NULL
   - buscarLinearmentePeloTipo( EPecaTipo tipo ): Peca | array | NULL

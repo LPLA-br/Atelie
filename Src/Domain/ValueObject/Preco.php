@@ -8,8 +8,8 @@ use Src\Domain\ValueObject\IPreco;
 class Preco implements IPreco
 {
   // PRECISÃO NÃO CRÍTICA 
-  private float $preco; //preço associado a unidade abstrata d'algo.
-  private float $quantidade; //float -> POG
+  private float $preco;
+  private float $quantidade;
   private float $total;
 
   public function __construct( float $preco, float $quantidade )

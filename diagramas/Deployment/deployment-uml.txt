@@ -1,0 +1,34 @@
+@startuml
+
+  actor Costureira
+
+  database Postgres [
+    Banco de dados relacional Postgres
+  ]
+
+  Package SGBDCursor [
+    Pacote provedor de sessão em sgbd
+  ]
+
+  Package Http [
+    Pacote provedor de tratamento de requisições
+    e respostas http. Endpoint, Controller, Service.
+  ]
+
+  Package Renderizador [
+    Pacote com ferramentas renderizadoras de HTML
+    para clientes (Interface do Usuário)
+  ]
+
+  Package Dominio [
+    Classes do domínio de negócios
+  ]
+
+  SGBDCursor -- Postgres
+  Dominio -- SGBDCursor : Adaptado
+  Dominio -- Http : Adaptado
+  Dominio -- Renderizador : Adaptado
+  Costureira -- Renderizador : uso
+
+@enduml
+

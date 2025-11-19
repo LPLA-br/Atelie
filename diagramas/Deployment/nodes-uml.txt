@@ -1,0 +1,10 @@
+@startuml
+
+  frame Redelocal {
+    node Servidor
+    node Cliente
+  }
+
+  Servidor -- Cliente
+  
+@enduml

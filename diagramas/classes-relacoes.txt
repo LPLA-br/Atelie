@@ -1,0 +1,27 @@
+' ARQUIVO ESPECIFICANTE DE RELAÇÕES ENTRE CLASSES
+' NÃO GERADO AUTOMATICAMENTE.
+
+InsumosColecao <|-- ACollection
+InsumosColecao *-- AInsumo
+PecasColecao <|-- ACollection
+PecasColecao *-- Peca
+
+AInsumo <|.. ITemObterId
+InsumoQuadrado <|-- AInsumo
+InsumoUnitario <|-- AInsumo
+InsumoQuadrado <.. Preco
+InsumoUnitario <.. Preco
+
+Preco <|.. IPreco
+
+Peca <.. EPecaTipo
+Peca <.. EPecaEstado
+Peca <-- Prazo
+Peca <-- InsumosColecao
+
+ServicoCostureira <.. EServicoTipo
+ServicoCostureira <.. EServicoEstado
+ServicoCostureira <-- PecasColecao
+
+
+

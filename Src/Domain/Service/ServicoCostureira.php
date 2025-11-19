@@ -17,13 +17,17 @@ class ServicoCostureira
 
   private PecasColecao $pecas;
 
-  public function __construct( int $id, ?EServicoTipo $tipo, ?EServicoEstado $estado, ?PecasColecao $pecas )
+  public function __construct(  int $id,
+    EServicoTipo $tipo,
+    EServicoEstado $estado,
+    PecasColecao $pecas
+  )
   {
     $this->id = $id;
 
-    $this->tipo = $tipo ? $tipo : EServicoTipo::Conserto;
-    $this->estado = $estado ? $estado : EServicoEstado::Pendente;
-    $this->pecas = $pecas ? $pecas : new PecasColecao( array() );
+    $this->tipo = $tipo;
+    $this->estado = $estado;
+    $this->pecas = $pecas;
   }
 
   // CONTROLE DE ESTADOS INFORMACIONAIS
@@ -120,7 +124,7 @@ class ServicoCostureira
 
   //-------------------------------------------------
 
-  protected function invalidarAcaoPorEstadoPendente( string $mensagem ): void
+  private function invalidarAcaoPorEstadoPendente( string $mensagem ): void
   {
     if ( $this->estaPendente() )
     {
@@ -129,7 +133,7 @@ class ServicoCostureira
     return;
   }
 
-  protected function invalidarAcaoPorEstadoProgredinte( string $mensagem ): void
+  private function invalidarAcaoPorEstadoProgredinte( string $mensagem ): void
   {
     if ( $this->estaProgredinte() )
     {
@@ -138,7 +142,7 @@ class ServicoCostureira
     return;
   }
 
-  protected function invalidarAcaoPorEstadoConcluido( string $mensagem ): void
+  private function invalidarAcaoPorEstadoConcluido( string $mensagem ): void
   {
     if ( $this->estaConcluido() )
     {
@@ -147,7 +151,7 @@ class ServicoCostureira
     return;
   }
 
-  protected function invalidarAcaoPorEstadoConcluidoParcialmente( string $mensagem ): void
+  private function invalidarAcaoPorEstadoConcluidoParcialmente( string $mensagem ): void
   {
     if ( $this->estaConcluidoParcialmente() )
     {
@@ -156,7 +160,7 @@ class ServicoCostureira
     return;
   }
 
-  protected function invalidarAcaoPorEstadoAbortado( string $mensagem ): void
+  private function invalidarAcaoPorEstadoAbortado( string $mensagem ): void
   {
     if ( $this->estaAbortado() )
     {
@@ -165,9 +169,9 @@ class ServicoCostureira
     return;
   }
 
-  // VERIFICAÇÃO DE ESTADOS SEMÂNTICOS
+  //-------------------------------------------------------
 
-  protected function estaProgredinte(): bool
+  private function estaProgredinte(): bool
   {
     if ( $this->estado === EServicoEstado::Progredinte )
     {
@@ -176,7 +180,7 @@ class ServicoCostureira
     return false;
   }
 
-  protected function estaPendente(): bool
+  private function estaPendente(): bool
   {
     if ( $this->estado === EServicoEstado::Pendente )
     {
@@ -185,7 +189,7 @@ class ServicoCostureira
     return false;
   }
 
-  protected function estaConcluido(): bool
+  private function estaConcluido(): bool
   {
     if ( $this->estado === EServicoEstado::Concluido )
     {
@@ -194,7 +198,7 @@ class ServicoCostureira
     return false;
   }
 
-  protected function estaConcluidoParcialmente(): bool
+  private function estaConcluidoParcialmente(): bool
   {
     if ( $this->estado === EServicoEstado::Concluido_parcialmente )
     {
@@ -203,7 +207,7 @@ class ServicoCostureira
     return false;
   }
 
-  protected function estaAbortado(): bool
+  private function estaAbortado(): bool
   {
     if ( $this->estado === EServicoEstado::Abortado )
     {

@@ -6,7 +6,7 @@
 # PLANTUML POR MEIO DE EXPRESSÕES REGULARES.
 #
 
-ARQUIVO=./diagrama-classes.txt
+ARQUIVO=./classes-uml.txt
 
 # OBTIDO POR find ../Src -iname '*.php' e selecionado por LPLA-br
 CLASSES='../Src/Domain/Service/ServicoCostureira.php
@@ -36,7 +36,7 @@ recriarArquivo()
 gerarCabecalho()
 {
   echo "@startuml" >> $ARQUIVO;
-  echo "!include ./diagrama-class-relacoes.txt" >> $ARQUIVO;
+  echo "!include ./classes-relacoes.txt" >> $ARQUIVO;
 }
 
 gerar()

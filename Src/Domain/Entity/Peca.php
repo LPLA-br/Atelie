@@ -8,7 +8,9 @@ use Src\Domain\Enum\EPecaTipo;
 use Src\Domain\Collection\InsumosColecao;
 use Src\Domain\Entity\AInsumo;
 
-class Peca
+use Src\Domain\Entity\ITemObterId;
+
+class Peca implements ITemObterId
 {
   private int $id;
   private string $descricao;

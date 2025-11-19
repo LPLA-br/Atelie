@@ -34,7 +34,7 @@ class PecasColecao extends ACollection
 
   //--------------------------------
 
-  public function computarCustoTotal(): int
+  public function computarCustoTotal(): float
   {
     $this->validarNumeroMinimoElementos( $this->lista );
     $custo = 0.0;
@@ -48,7 +48,20 @@ class PecasColecao extends ACollection
 
   public function obterPecaMaiorPrazo(): string
   {
-    throw new \Exception( "NÃO IMPLEMENTADO" );
+    $this->validarNumeroMinimoElementos( $this->lista );
+    $maiorPrazoAtual = $this->lista[0]->obterPrazo();
+
+    for ( $i = 0; $i < sizeof( $this->lista ); $i++ )
+    {
+      $prazoEmAnalise = $this->lista[ $i ]->obterPrazo();
+      if ( $maiorPrazoAtual < $prazoEmAnalise )
+      {
+        $maiorPrazoAtual = $prazoEmAnalise;
+        continue;
+      }
+    }
+
+    return $maiorPrazoAtual;
   }
 
   //--------------------------------
@@ -65,6 +78,9 @@ class PecasColecao extends ACollection
         array_push( $pecasEncontradas, $this->lista[ $i ] );
       }
     }
+
+    if ( sizeof( $pecasEncontradas ) === 0 ) return NULL;
+    else if ( sizeof( $pecasEncontradas ) === 1 ) return $pecasEncontradas[0];
     return $pecasEncontradas;
   }
 
@@ -80,6 +96,8 @@ class PecasColecao extends ACollection
       }
     }
 
+    if ( sizeof( $pecasEncontradas ) === 0 ) return NULL;
+    else if ( sizeof( $pecasEncontradas ) === 1 ) return $pecasEncontradas[0];
     return $pecasEncontradas;
   }
 

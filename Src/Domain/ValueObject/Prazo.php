@@ -9,7 +9,7 @@ class Prazo
 
   protected string $dataPrazo;
 
-  protected array $anoMesDia; //hash-table
+  protected array $anoMesDia;
   protected bool $indeterminado;
 
   protected string $INDETERMINACAO = '0000-00-00';
