@@ -5,24 +5,25 @@ namespace Src\Domain\Service;
 use Src\Domain\Enum\EServicoTipo;
 use Src\Domain\Enum\EServicoEstado;
 
+use Src\Domain\Entity\Cliente;
 use Src\Domain\Entity\Peca;
 use Src\Domain\Collection\PecasColecao;
 
 class ServicoCostureira
 {
   private int $id;
-  private int $idUsuario;
 
   private EServicoTipo $tipo;
   private EServicoEstado $estado;
 
+  private Usuario $usuario;
   private PecasColecao $pecas;
 
   public function __construct(
     int $id,
-    int $idUsuario
     EServicoTipo $tipo,
     EServicoEstado $estado,
+    Usuario $usuario,
     PecasColecao $pecas
   )
   {
@@ -31,6 +32,8 @@ class ServicoCostureira
 
     $this->tipo = $tipo;
     $this->estado = $estado;
+
+    $this->usuario = $usuario;
     $this->pecas = $pecas;
   }
 
@@ -91,7 +94,7 @@ class ServicoCostureira
     return;
   }
 
-  //TIPO DO SERVIÇO DE DOMÍNIO
+  //--------------------------------------
 
   public function definirTipo( EServicoTipo $tipo ): void
   {
@@ -103,29 +106,31 @@ class ServicoCostureira
     $this->tipo = $tipo;
   }
 
-  //MANIPULAÇÃO DA COLEÇÃO DE PEÇAS (delegação de responsabilidade)
+  //--------------------------------------
 
-  public function computarCustoTodasPecas(): void
+  public function computarCustoTodasPecas(): float
   {
-    $this->pecas->computarCusto();
+    return $this->pecas->computarCustoTotal();
   }
 
   public function obterQuantidadeDePecasPendentes(): int
   {
-    $pecasPendentes;
-    return 0;
+    return $this->obterQuantidadePecasPendentes();
   }
 
-  
-
-  public function adicionarPeca( IPeca $peca ): void
+  public function adicionarPeca( Peca $peca ): void
   {
     $this->pecas->adicionar( $peca );
   }
 
-  public function removerPeca(): void
+  public function removerPecaPorId( int $id ): void
   {
+    return $this->pecas->removerPorId( $id );
+  }
 
+  public function obterPecaComMaiorPrazo(): string
+  {
+    return $this->pecas->obterPecaMaiorPrazo();
   }
 
   //-------------------------------------------------

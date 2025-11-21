@@ -17,22 +17,6 @@
 -----------------------------------------------------------------------
 SUMÁRIO (gerado por grep -E "^[1-9]")
 
-0.DESCRIÇÃO DO PROBLEMA DE NEGÓCIO
-1.HIERARQUIA ABSTRACIONAL POR MACROCATEGORIA
-2.CLASSES, INTERFACES E ABSTRAÇÕES
-2.1 INTERFACES || ENUMERAÇÕES
-2.2 CLASSES ABSTRATAS
-2.3 RELAÇÕES INTERCLASSE
-2.4 DIAGRAMA HIERARQUICO DO ESTADO DA ARTE
-3.ENDPOINTS HTTP
-4.BANCO DE DADOS
-5.APENDICES
-5.1 CRITÉRIOS DE CLASSIFICAÇÃO DOS REQUISITOS FUNCIONAIS:
-5.2 GRANULARIDADE DO MODELO DE CLASSES
-5.3 CICLO DE VIDA DE UM SERVIÇO COMPOSTO DE N PEÇAS
-5.4 CICLO DE VIDA DE UMA PEÇA
-5.5 UNICIDADE INFORMACIONAL DAS ENTIDADES
-
 -----------------------------------------------------------------------
 0.DESCRIÇÃO DO PROBLEMA DE NEGÓCIO
 CLIENTES Requisitam SERVIÇOS que possuem CONSERTOS ou CONFECÇÕES de
@@ -50,9 +34,9 @@ contabilizados por metro quadrado Medidas são em centímetros. Insumos
 são: Zippers (unidade), Botões (unidade), Metros de tecido, Metros de
 linhas(incalculável/desprezível). Custos de Insumos e Custo de tempo
 definem o valor final por Serviço ou Por Peça.
+
 -----------------------------------------------------------------------
-1.HIERARQUIA ABSTRACIONAL POR MACROCATEGORIA
-Poucos ou todos os itens listados aqui podem tornar-se classes.
+1.COLETA ANALÍTICA DE EVIDÊNCIAS DE DOMÍNIO
 
   ENTIDADES FÍSICAS
     Costureira
@@ -95,20 +79,28 @@ Poucos ou todos os itens listados aqui podem tornar-se classes.
       Custo por quantidade exata N dimensional
 
 -----------------------------------------------------------------------
-2.CLASSES, INTERFACES E ABSTRAÇÕES
+2.CLASSES, INTERFACES ou ABSTRAÇÕES e ENUMERAÇÕES
 
-2.1 INTERFACES || ENUMERAÇÕES
+  Compile e vide diagrama em ./diagramas/classes-uml.png
 
-Interfaces
-  ICliente
-  IContato
-  IEndereco
-  IServico
-  IPeca
-    IPecaEstado [extends IServicoEstado]
-    IPecaPrazo  [dias]
+2.1 CLASSES
+(obtido por: grep -r 'class' Src/ | awk '(FS=":"){print $1}' |
+tr -d ':' | uniq --unique >> analise-dominio.txt)
 
-Enumerações
+  Src/Domain/Service/ServicoCostureira.php
+  Src/Domain/ValueObject/Prazo.php
+  Src/Domain/ValueObject/Contato.php
+  Src/Domain/ValueObject/Medida.php
+  Src/Domain/ValueObject/Preco.php
+  Src/Domain/Entity/Peca.php
+  Src/Domain/Entity/InsumoQuadrado.php
+  Src/Domain/Entity/Cliente.php
+  Src/Domain/Entity/AInsumo.php
+  Src/Domain/Entity/InsumoUnitario.php
+  Src/Domain/Collection/PecasColecao.php
+
+2.1 ENUMERAÇÕES
+
   EServicoTipo
     [
       Confecção,
@@ -126,32 +118,34 @@ Enumerações
 
 2.2 CLASSES ABSTRATAS
 
-AServico
-  ServicoConcerto
-  ServicoConfecao
+  AInsumo
+    InsumoUnitario
+    InsumoQuadrado
+  AColecao
+    PecasColecao
+    InsumosColecao
 
-AInsumo
-  InsumoUnitario
-  InsumoQuadrado
+2.3 RELAÇÕES INTERCLASSES
 
-2.3 RELAÇÕES INTERCLASSE
+  Cliente
+  |_AGREGA 1..1 Serviço
+  |_AGREGA 0..1 Contato
+  |_AGREGA 0..1 Endereco
+  |_AGREGA 0..1 Medida
 
-Cliente AGREGA 1..1 Serviço \\manipulação de serviço
-Cliente AGREGA 0..N Contato
-Serviço COMPÕE-SE DE 1..N Peça
-Peça COMPÔE-SE 0..N Insumo 
-Peça ASSOCIA-SE 1..1 Prazo
+  ServiçoCostureira
+  |_COMPÕE-SE DE 1..N Peça
 
-Medida
-Endereco
-Contato
-Insumo
+  Peça
+  |_COMPÔE-SE  DE 0..N Insumo 
+  |_ASSOCIA-SE DE 1..1 Prazo
 
-
-2.4 DIAGRAMA HIERARQUICO DO ESTADO DA ARTE
+2.4 DIAGRAMA DE HIERARQUIA
 
 ServicoCostureira
 |_Cliente
+| |_Contato
+| |_Medida
 |_ColecaoPecas
   |_Pecas
     |_ColecaoInsumos
@@ -163,7 +157,7 @@ ServicoCostureira
 Seguir documento com especificação técnica para modelagem de endpoints
 REST (REpresentational State Transfer) Nível de maturidade 2
 
-OPTIONS Métodos disponíveis para rotas específicas da URI
+OPTIONS Métodos disponíveis para rotas específicas da URI.
 HEAD    Existência e tamanho de recurso.
 GET     Obtenção de todas representações de recursos, secção paginada
         ou um elemento.
@@ -190,13 +184,8 @@ DELETE  Deleção ou arquivamento de recurso e sua representação.
 4.BANCO DE DADOS
   
   Postgres
-  
-  Aplicação utiliza todos os níveis de multiplicidade:
-  (1..1) ,(1..N) e (N..N).
-
-  I. Problema da dinamicidade de medidas
-    MedidaCliente 1..N MedidaComponente
-      {desc, unidade_numerica_espacial}
+  Compile diagrama em ./diagramas/EntidadeRelacionamento/er.txt
+  usando o plantuml e vizualize .png resultante.
 
 
 -----------------------------------------------------------------------
@@ -219,10 +208,7 @@ Use uma matriz Impacto x Esforço para organizar os requisitos:
   Impacto alto, esforço baixo: Prioridade para as primeiras versões.
   Impacto baixo, esforço alto: Deixe para versões futuras.
 
-5.2 GRANULARIDADE DO MODELO DE CLASSES
-  I. Evitar sobrexpansão de granularidade no início da modelagem
-
-5.3 CICLO DE VIDA DE UM SERVIÇO COMPOSTO DE N PEÇAS
+5.2 CICLO DE VIDA DE UM SERVIÇO COMPOSTO DE N PEÇAS
 
 CRIAÇÃO-Pendente->Progredinte------>Concluido
         |         |          |______Concluido_parcialmente
@@ -231,20 +217,21 @@ CRIAÇÃO-Pendente->Progredinte------>Concluido
 Toda nova Peça cria-se Pendente.
 Peça resgatada tem estado arbitrário.
 
-5.4 CICLO DE VIDA DE UMA PEÇA
+5.3 CICLO DE VIDA DE UMA PEÇA
 
 CRIAÇÃO->Pendente->Progredinte->Concluida
                 |____________|__Abortada
 
-5.5 UNICIDADE INFORMACIONAL DAS ENTIDADES
+5.4 UNICIDADE INFORMACIONAL DAS ENTIDADES
 Indo além um identificador gênérico
 Insumo = nome
 
-5.6 MÉTODO ANALÍTICO SIMPLIFICADO
+5.5 MÉTODO ANALÍTICO SIMPLIFICADO
 coletarEvidencias->analisar->ordenar->enumerarConclusoes();
 
-5.7 MODELO DE APLICAÇÃO WEB NA ARQUITETURA DE CAMADAS
-MODEL-DRIVEN-DESIGN (página 50)
+5.6 MODELO DE APLICAÇÃO WEB NA ARQUITETURA DE CAMADAS
+
+  DOMAIN-DRIVEN-DESIGN (página 50)
   express model with ENTITIES
     that access REPOSITORIES
     that encapsulate with AGGREGATES
@@ -253,17 +240,14 @@ MODEL-DRIVEN-DESIGN (página 50)
       that encapsulate with FACTORIES
   AGGREGATES that encapsulate with FACTORIES
 
-DOMÍNIO ISOLADO POR ARQUITETURA DE CAMADAS
+  expressar modelo com SERVIÇES
 
-expressar modelo com SERVIÇES
-
-AGGREGATES = relação de AGREGAÇÃO OOP
-COLLECTION = estrutura de dados para N objetos de mesmo tipo
-
-______________________
-|User interface
-|Application Layer
-|Domain Layer
-|Infrastructure Layer
-|_____________________
+  AGGREGATES = relação de AGREGAÇÃO OOP
+  COLLECTION = estrutura de dados para N objetos de mesmo tipo
+  ______________________
+  |User interface
+  |Application Layer
+  |Domain Layer
+  |Infrastructure Layer
+  |_____________________
 

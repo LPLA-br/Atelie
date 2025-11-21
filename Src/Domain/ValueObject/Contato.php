@@ -16,14 +16,22 @@ class Contato
     $this->celular = $celular;
   }
 
-  public function getTelefone(): string
+  public function obterTelefone(): string
   {
     return $this->telefone;
   }
   
-  public function getEmail(): string
+  public function obterEmail(): string
   {
     return $this->email;
+  }
+
+  public function obterRepresentacaoCompleta(): object
+  {
+    return array(
+      "telefone" => $this->telefone,
+      "email" => $this->email
+    );
   }
 
   //---------------------------------------
