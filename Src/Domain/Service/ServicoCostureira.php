@@ -9,6 +9,7 @@ use Src\Domain\Entity\Cliente;
 use Src\Domain\Entity\Peca;
 use Src\Domain\Collection\PecasColecao;
 
+/*Classe matriz do processo do Ateliê */
 class ServicoCostureira
 {
   private int $id;
@@ -16,39 +17,41 @@ class ServicoCostureira
   private EServicoTipo $tipo;
   private EServicoEstado $estado;
 
-  private Usuario $usuario;
+  private Cliente $cliente;
   private PecasColecao $pecas;
+
+  private EServicoEstado $estadoNovo;
 
   public function __construct(
     int $id,
     EServicoTipo $tipo,
     EServicoEstado $estado,
-    Usuario $usuario,
+    Cliente $cliente,
     PecasColecao $pecas
   )
   {
     $this->id = $id;
-    $this->id = $idUsuario;
 
     $this->tipo = $tipo;
     $this->estado = $estado;
 
-    $this->usuario = $usuario;
+    $this->cliente = $cliente;
     $this->pecas = $pecas;
   }
 
+  //--------------------------------------
   // CONTROLE DE ESTADOS INFORMACIONAIS
 
   public function iniciar(): void
   {
-    $this->invalidarAcaoPorEstadoConcluido( "está concluido" );
-    $this->invalidarAcaoPorEstadoAbortado( "está abortado !" );
-    $this->invalidarAcaoPorEstadoConcluidoParcialmente( "está concluido (parcialmente)" );
-    $this->invalidarAcaoPorEstadoProgredinte( "já está progredinte" );
-    $this->invalidarAcaoPorEstadoPendente( "está marcado como pendente pós inicio" );
+    $this->estadoNovo = EServicoEstado::Progredinte;
+
+    $this->invalidarAcaoPorEstadoConcluido();
+    $this->invalidarAcaoPorEstadoAbortado();
+    $this->invalidarAcaoPorEstadoConcluidoParcialmente();
+    $this->invalidarAcaoPorEstadoProgredinte();
 
     $this->estado = EServicoEstado::Progredinte;
-    return;
   }
 
   public function continuar(): void
@@ -56,23 +59,26 @@ class ServicoCostureira
     $this->iniciar();
   }
 
-  public function tornarPedente(): void
+  public function pausar(): void
   {
-    $this->invalidarAcaoPorEstadoConcluido( "" );
-    $this->invalidarAcaoPorEstadoAbortado( "" );
-    $this->invalidarAcaoPorEstadoConcluidoParcialmente( "" );
-    $this->invalidarAcaoPorEstadoPendente( "" );
+    $this->estadoNovo = EServicoEstado::Pendente;
 
-    $this->estado = EServicoEstado::Pedente;
-    return;
+    $this->invalidarAcaoPorEstadoConcluido();
+    $this->invalidarAcaoPorEstadoAbortado();
+    $this->invalidarAcaoPorEstadoConcluidoParcialmente();
+    $this->invalidarAcaoPorEstadoPendente();
+
+    $this->estado = EServicoEstado::Pendente;
   }
 
   public function concluir(): void
   {
-    $this->invalidarAcaoPorEstadoConcluido( "" );
-    $this->invalidarAcaoPorEstadoAbortado( "" );
-    $this->invalidarAcaoPorEstadoConcluidoParcialmente( "" );
-    $this->invalidarAcaoPorEstadoPendente( "" );
+    $this->estadoNovo = EServicoEstado::Concluido;
+
+    $this->invalidarAcaoPorEstadoConcluido();
+    $this->invalidarAcaoPorEstadoAbortado();
+    $this->invalidarAcaoPorEstadoConcluidoParcialmente();
+    $this->invalidarAcaoPorEstadoPendente();
 
     if ( $this->obterQuantidadeDePecasPendentes() > 0 )
     {
@@ -81,20 +87,31 @@ class ServicoCostureira
     }
 
     $this->estado = EServicoEstado::Concluido;
-    return;
   }
 
   public function abortar(): void
   {
-    $this->invalidarAcaoPorEstadoConcluido( "" );
-    $this->invalidarAcaoPorEstadoAbortado( "" );
-    $this->invalidarAcaoPorEstadoConcluidoParcialmente( "" );
+    $this->invalidarAcaoPorEstadoConcluido();
+    $this->invalidarAcaoPorEstadoAbortado();
+    $this->invalidarAcaoPorEstadoConcluidoParcialmente();
 
     $this->estado = EServicoEstado::Abortado;
-    return;
   }
 
   //--------------------------------------
+
+  public function obterEstado(): EServicoEstado
+  {
+    return $this->estado;
+  }
+
+  public function obterTipo(): EServicoTipo
+  {
+    return $this->tipo;
+  }
+
+  //--------------------------------------
+  // SETOR MODIFICATIVO/SEMÂNTICO SERVIÇO
 
   public function definirTipo( EServicoTipo $tipo ): void
   {
@@ -107,15 +124,21 @@ class ServicoCostureira
   }
 
   //--------------------------------------
+  // SETOR PEÇAS
 
-  public function computarCustoTodasPecas(): float
+  public function obterCustoTodasPecas(): float
   {
     return $this->pecas->computarCustoTotal();
   }
 
   public function obterQuantidadeDePecasPendentes(): int
   {
-    return $this->obterQuantidadePecasPendentes();
+    return $this->pecas->obterQuantidadePecasPendentes();
+  }
+
+  public function obterPecaComMaiorPrazo(): string
+  {
+    return $this->pecas->obterPrazoDaPecaMaiorPrazo();
   }
 
   public function adicionarPeca( Peca $peca ): void
@@ -125,57 +148,53 @@ class ServicoCostureira
 
   public function removerPecaPorId( int $id ): void
   {
-    return $this->pecas->removerPorId( $id );
-  }
-
-  public function obterPecaComMaiorPrazo(): string
-  {
-    return $this->pecas->obterPecaMaiorPrazo();
+    $this->pecas->removerPorId( $id );
   }
 
   //-------------------------------------------------
+  // SETOR VALIDATÓRIO DE MUDAÇAS DE ESTADO
 
-  private function invalidarAcaoPorEstadoPendente( string $mensagem ): void
+  private function invalidarAcaoPorEstadoPendente(): void
   {
     if ( $this->estaPendente() )
     {
-      throw new Exception( get_class($this) . ": " . $mensagem );
+      throw new \Exception( $this->estadoNovo->value . " não pode ser aplicado em Serviço Pendente." );
     }
     return;
   }
 
-  private function invalidarAcaoPorEstadoProgredinte( string $mensagem ): void
+  private function invalidarAcaoPorEstadoProgredinte(): void
   {
     if ( $this->estaProgredinte() )
     {
-      throw new Exception( get_class($this) . ": " . $mensagem );
+      throw new \Exception( $this->estadoNovo->value . " não pode ser aplicado em Serviço Progredinte." );
     }
     return;
   }
 
-  private function invalidarAcaoPorEstadoConcluido( string $mensagem ): void
+  private function invalidarAcaoPorEstadoConcluido(): void
   {
     if ( $this->estaConcluido() )
     {
-      throw new Exception( get_class($this) . ": " . $mensagem );
+      throw new \Exception( $this->estadoNovo->value . " não pode ser aplicado em Serviço Concluido." );
     }
     return;
   }
 
-  private function invalidarAcaoPorEstadoConcluidoParcialmente( string $mensagem ): void
+  private function invalidarAcaoPorEstadoConcluidoParcialmente(): void
   {
     if ( $this->estaConcluidoParcialmente() )
     {
-      throw new Exception( get_class($this) . ": " . $mensagem );
+      throw new \Exception( $this->estadoNovo->value . " não pode ser aplicado em Serviço Concluido Parcialmente." );
     }
     return;
   }
 
-  private function invalidarAcaoPorEstadoAbortado( string $mensagem ): void
+  private function invalidarAcaoPorEstadoAbortado(): void
   {
     if ( $this->estaAbortado() )
     {
-      throw new Exception( get_class($this) . ": " . $mensagem );
+      throw new \Exception( $this->estadoNovo->value . " não pode ser aplicado em Serviço Abortado." );
     }
     return;
   }

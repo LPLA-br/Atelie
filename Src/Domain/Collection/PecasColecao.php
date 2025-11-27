@@ -48,7 +48,7 @@ class PecasColecao extends ACollection
 
   //-------------------------------
 
-  public function obterPecaMaiorPrazo(): string
+  public function obterPrazoDaPecaMaiorPrazo(): string
   {
     $this->validarNumeroMinimoElementos( $this->lista );
     $maiorPrazoAtual = $this->lista[0]->obterPrazo();

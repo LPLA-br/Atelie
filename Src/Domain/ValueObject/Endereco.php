@@ -9,6 +9,7 @@ class Endereco
   private ?string $unidadeAdministrativa;
   private string  $cidade;
   private string  $bairro;
+  private string  $rua;
   private string  $numeroImovel;
   private ?string $apartamento;
 
@@ -17,16 +18,17 @@ class Endereco
     ?string $unidadeAdministrativa,
     string  $cidade,
     string  $bairro,
+    string  $rua;
     string  $numeroImovel,
     ?string $apartamento,
   )
   {
-    $this->pais;
-    $this->unidadeAdministrativa;
-    $this->cidade;
-    $this->bairro;
-    $this->numeroImovel;
-    $this->apartamento;
+    $this->pais = $pais;
+    $this->cidade = $cidade;
+    $this->bairro = $bairro;
+    $this->rua = $rua;
+    $this->numeroImovel = $numeroImovel;
+    $this->apartamento = $numeroApartamento;
   }
 
   public function obterRepresentacaoCompleta(): object
@@ -36,6 +38,7 @@ class Endereco
       "unidadeAdministrativa" => $this->unidadeAdministrativa,
       "cidade" => $this->cidade,
       "bairro" => $this->bairro,
+      "rua" => $this->rua,
       "numeroImovel" => $this->numeroImovel,
       "apartamento" => $this->apartamento
     );

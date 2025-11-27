@@ -19,27 +19,16 @@ class Cliente
   public function __construct(
     int $id,
     string $nome,
-    array $servicos,
     ?Contato $contato,
     ?Medida $medida,
     ?Endereco $endereco
   )
   {
-    $this->id;
-    $this->nome;
-    $this->contato = NULL;
-    $this->medida = NULL;
-    $this->endereco = NULL;
-
-    switch ( true )
-    {
-      case ($contato !== NULL):
-        $this->contato = $contato;
-      case ($medida !== NULL):
-        $this->medida = $medida;
-      case ($endereco !== NULL):
-        $this->endereco = $endereco;
-    }
+    $this->id = $id;
+    $this->nome = $nome;
+    $this->contato = $contato;
+    $this->medida = $medida;
+    $this->endereco = $endereco;
   }
 
   //-----------------------------------

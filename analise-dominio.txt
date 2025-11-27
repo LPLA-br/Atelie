@@ -211,7 +211,7 @@ Use uma matriz Impacto x Esforço para organizar os requisitos:
 5.2 CICLO DE VIDA DE UM SERVIÇO COMPOSTO DE N PEÇAS
 
 CRIAÇÃO-Pendente->Progredinte------>Concluido
-        |         |          |______Concluido_parcialmente
+        |         |__________|______Concluido_parcialmente
         |_________|_________________Abortado
 
 Toda nova Peça cria-se Pendente.

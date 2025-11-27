@@ -224,7 +224,7 @@ final class PecasCollectionTest extends TestCase
 
     $pecas = [ $peca, $peca2 ];
     $pecasColecao = new PecasColecao( $pecas );
-    $maiorPrazo = $pecasColecao->obterPecaMaiorPrazo();
+    $maiorPrazo = $pecasColecao->obterPrazoDaPecaMaiorPrazo();
 
     $this->assertEquals( $maiorPrazo, $peca2->obterPrazo() );
   }
