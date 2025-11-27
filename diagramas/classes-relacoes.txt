@@ -1,27 +1,46 @@
 ' ARQUIVO ESPECIFICANTE DE RELAÇÕES ENTRE CLASSES
 ' NÃO GERADO AUTOMATICAMENTE.
 
-InsumosColecao <|-- ACollection
-InsumosColecao *-- AInsumo
+' DOCUMENTAÇÃO INLINE
+' --> Dependência: tipo referenciado em métodos fora do construtor.
+' ..> associação:  tipo referenciado apenas no construtor e como atributo global à classe.
+' o-- agregação: tipo não mandatório para existência de objeto E é superconjunto pluriforme de associação.
+' *-- composição: tipo mandatório para existência de objeto E é superconjunto pluriforme de dependência.
+' <|-- extensão: simplesmente herança de classe abstrata ou concreta.
+' <|.. implementacao: classe em conformidade com contrato.
+' tipo = objeto || interface || classe abstrata (qualquer coisa dependável)
+
+ServicoCostureira --> EServicoTipo
+ServicoCostureira --> EServicoEstado
+ServicoCostureira --> Peca
+ServicoCostureira ..> Cliente
+ServicoCostureira ..> PecasColecao
+
+PecasColecao --> EPecaEstado
+PecasColecao --> EPecaTipo
 PecasColecao <|-- ACollection
 PecasColecao *-- Peca
+
+Peca --> EPecaTipo
+Peca --> EPecaEstado
+Peca --> AInsumo
+Peca ..> Prazo
+Peca ..> InsumosColecao
+
+InsumosColecao <|-- ACollection
+InsumosColecao *-- AInsumo
+
+ACollection <-- ITemObterId
 
 AInsumo <|.. ITemObterId
 InsumoQuadrado <|-- AInsumo
 InsumoUnitario <|-- AInsumo
-InsumoQuadrado <.. Preco
-InsumoUnitario <.. Preco
+InsumoQuadrado <.. IPreco
+InsumoUnitario <.. IPreco
 
 Preco <|.. IPreco
 
-Peca <.. EPecaTipo
-Peca <.. EPecaEstado
-Peca <-- Prazo
-Peca <-- InsumosColecao
-
-ServicoCostureira <.. EServicoTipo
-ServicoCostureira <.. EServicoEstado
-ServicoCostureira <-- PecasColecao
-
-
+Cliente ..> Medida
+Cliente ..> Endereco
+Cliente ..> Contato
 

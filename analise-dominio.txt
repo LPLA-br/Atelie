@@ -7,7 +7,7 @@
   set textwidth=72
   set formatoptions+=t
 
-  PROJETO E FINALIDADES
+  FINALIDADE DO SOFTWARE
 
   Project Management System...........SIM
   Finance Management System...........SIM
@@ -121,24 +121,33 @@ tr -d ':' | uniq --unique >> analise-dominio.txt)
   AInsumo
     InsumoUnitario
     InsumoQuadrado
-  AColecao
+  ACollection
     PecasColecao
     InsumosColecao
 
 2.3 RELAÇÕES INTERCLASSES
 
+  Define-se ServicoCostureira como
+  a classe matriz dos processos.
+
+  ServicoCostureira
+  |_COMPÕE-SE DE 1..1 Cliente
+  |_COMPÕE-SE DE 1..1 PecasColecao
+
   Cliente
-  |_AGREGA 1..1 Serviço
   |_AGREGA 0..1 Contato
   |_AGREGA 0..1 Endereco
   |_AGREGA 0..1 Medida
 
-  ServiçoCostureira
-  |_COMPÕE-SE DE 1..N Peça
+  PecasColecao
+  |_COMPÕE-SE DE 1..N Peca
 
-  Peça
-  |_COMPÔE-SE  DE 0..N Insumo 
+  Peca
+  |_COMPÔE-SE  DE 1..N AInsumo 
   |_ASSOCIA-SE DE 1..1 Prazo
+
+  AInsumo
+  |_COMPÔE-SE DE 1..1 Preco
 
 2.4 DIAGRAMA DE HIERARQUIA
 

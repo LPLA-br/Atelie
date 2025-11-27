@@ -6,24 +6,29 @@ class ServicoCostureira
   - int id;
   - EServicoTipo tipo;
   - EServicoEstado estado;
+  - Cliente cliente;
   - PecasColecao pecas;
-  + construct(  int id,
+  - EServicoEstado estadoNovo;
+  + construct(
   + iniciar(): void
   + continuar(): void
-  + tornarPedente(): void
+  + pausar(): void
   + concluir(): void
   + abortar(): void
+  + obterEstado(): EServicoEstado
+  + obterTipo(): EServicoTipo
   + definirTipo( EServicoTipo tipo ): void
   + alterarTipo( EServicoTipo tipo ): void
-  + computarCustoTodasPecas(): void
+  + obterCustoTodasPecas(): float
   + obterQuantidadeDePecasPendentes(): int
-  + adicionarPeca( IPeca peca ): void
-  + removerPeca(): void
-  - invalidarAcaoPorEstadoPendente( string mensagem ): void
-  - invalidarAcaoPorEstadoProgredinte( string mensagem ): void
-  - invalidarAcaoPorEstadoConcluido( string mensagem ): void
-  - invalidarAcaoPorEstadoConcluidoParcialmente( string mensagem ): void
-  - invalidarAcaoPorEstadoAbortado( string mensagem ): void
+  + obterPecaComMaiorPrazo(): string
+  + adicionarPeca( Peca peca ): void
+  + removerPecaPorId( int id ): void
+  - invalidarAcaoPorEstadoPendente(): void
+  - invalidarAcaoPorEstadoProgredinte(): void
+  - invalidarAcaoPorEstadoConcluido(): void
+  - invalidarAcaoPorEstadoConcluidoParcialmente(): void
+  - invalidarAcaoPorEstadoAbortado(): void
   - estaProgredinte(): bool
   - estaPendente(): bool
   - estaConcluido(): bool
@@ -135,9 +140,18 @@ class InsumoQuadrado
 }
 class Cliente
 {
-    # string nome;
-    # array servicos
-    + construct( string nome )
+  # int id;
+  # string nome;
+  # ?Contato contato;
+  # ?Medida medida;
+  # ?Endereco endereco;
+  + construct(
+  + obterId(): int
+  + obterNome(): string
+  + obterContato(): object
+  + obterMedidas(): object
+  + obterEndereco(): object
+  # validarOperacaoAgregada( object | NULL objeto, string nomeObjetoAgregado ): void
 }
 abstract class AInsumo
 {
@@ -186,7 +200,13 @@ class PecasColecao
   + buscarPeloEstado( EPecaEstado estado ): Peca | array | NULL
   + buscarPeloTipo( EPecaTipo tipo ): Peca | array | NULL
   + computarCustoTotal(): float
-  + obterPecaMaiorPrazo(): string
+  + obterPrazoDaPecaMaiorPrazo(): string
+  + obterPecasPendentes(): Peca | array | NULL
+  + obterQuantidadePecasPendentes(): int
+  + obterPecasConcluidas(): Peca | array | NULL
+  + obterQuantidadePecasConcluidas(): int
+  + obterPecasProgredintes(): Peca | array | NULL
+  + obterQuantidadePecasProgredintes(): int
   - buscarLinearmentePeloEstado( EPecaEstado estado ): Peca | array | NULL
   - buscarLinearmentePeloTipo( EPecaTipo tipo ): Peca | array | NULL
 }
@@ -225,7 +245,7 @@ enum EPecaTipo
 }
 enum EServicoEstado
 {
- Pedente
+ Pendente
  Progredinte
  Concluido
  Concluido_parcialmente

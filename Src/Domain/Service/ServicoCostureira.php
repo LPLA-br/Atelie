@@ -9,14 +9,14 @@ use Src\Domain\Entity\Cliente;
 use Src\Domain\Entity\Peca;
 use Src\Domain\Collection\PecasColecao;
 
-/*Classe matriz do processo do Ateliê */
+/*Classe matriz do processo do Ateliê.
+  Desenvolvimento constante.*/
 class ServicoCostureira
 {
   private int $id;
 
   private EServicoTipo $tipo;
   private EServicoEstado $estado;
-
   private Cliente $cliente;
   private PecasColecao $pecas;
 
@@ -150,6 +150,9 @@ class ServicoCostureira
   {
     $this->pecas->removerPorId( $id );
   }
+
+  //-------------------------------------------------
+  // SETOR CLIENTE
 
   //-------------------------------------------------
   // SETOR VALIDATÓRIO DE MUDAÇAS DE ESTADO
