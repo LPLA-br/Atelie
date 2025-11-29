@@ -1,13 +1,39 @@
-@startchen
-' teste temporario entidade relacionamento
-entity pecas{
-}
-relationship possui_insumo {
-}
-entity insumos {
+@startuml
+' LEIA: https://plantuml.com/ie-diagram
+' diagrama Chen não usado neste projeto
+
+entity "servicos" {
+  id
+  --
+  tipo
+  estado
 }
 
-pecas -N- possui_insumo
-insumos -N- possui_insumo
+entity "clientes" {
+  id
+  --
+  nome
+  medida
+}
 
-@endchen
+entity "pecas" {
+  id
+  --
+  descricao
+  prazo
+}
+
+entity "insumos"{
+  id
+  --
+  nome
+  preco
+  tipo
+  quantidade
+}
+
+servicos }|--|| clientes
+servicos ||--|{ pecas
+pecas    ||--|{ insumos
+
+@enduml

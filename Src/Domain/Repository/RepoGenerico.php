@@ -5,29 +5,104 @@ namespace \Src\Domain\Repository;
 abstract class RepoGenerico
 {
 
-  protected object | NULL $representacao;
+  protected array $resultado;
   protected $conexao;
+  private bool $somenteLeitura;
 
-  public function __construct()
+  public function __construct( array $objetos )
   {
-    $this->representacao = NULL;
+    $this->resultado = array();
     $this->conexao = pg_connect( $this->obterStringConexaoDasVariaveisAmbientes() );
+
+    if ( sizeof($objetos) > 0 )
+    {
+      $this->somenteLeitura = false;
+      $this->resultado = $objetos;
+      return;
+    }
+
+    $this->somenteLeitura = true;
   }
 
-  /** Busca, insância e carrega representação na memória */
-  abstract public function ler( int $id ): void;
+  /** Retorna lista de derivados de AInsumo instânciados.*/
+  abstract public function obterObjetos(): array;
 
-  /** Salva representação corrente no banco de dados */
-  abstract public function escrever(): void;
+  //---------------------------------------
 
-  public function obterRepresentacao(): object
+  public function obterArrayResultados(): array
   {
-    return $this->representacao;
+    return $this->resultado;
   }
 
   //---------------------------------------
 
-  protected function obterStringConexaoDasVariaveisAmbientes()
+  protected function ler( string $consulta ): void
+  {
+    $this->invalidarLeiturasPorSomenteEscrita();
+
+    $this->resultado = array();
+    $res = pg_query( $this->conexao, $consulta );
+
+    if ( $res === false )
+    {
+      throw new \Exception("ler: erro desconhecido.");
+    }
+
+    while ( $linha = pg_fetch_row( $res ) )
+    {
+      array_push( $this->resultado, $linha );
+    }
+
+    pg_free_result( $res );
+  }
+
+  protected function escrever( string $consulta ): void
+  {
+    $this->invalidarEscritasPorSomenteLeitura();
+    if ( pg_query( $this->conexao, $consulta ) === false )
+    {
+      throw new \Exception("escrever: erro desconhecido.");
+    }
+  }
+
+  //---------------------------------------
+
+  protected function encerrar(): void
+  {
+    pg_close( $this->conexao );
+  }
+
+  //---------------------------------------
+
+  protected function invalidarLeiturasPorSomenteEscrita(): void
+  {
+    if ( $this->eRepositorioSomenteEscrita() )
+    {
+      throw new \Exception( "Ação negada: Repositório somente escrita." );
+    }
+  }
+
+  protected function invalidarEscritasPorSomenteLeitura(): void
+  {
+    if ( !$this->eRepositorioSomenteEscrita() )
+    {
+      throw new \Exception( "Ação negada: Repositório somente leitura." );
+    }
+  }
+
+  //---------------------------------------
+
+  protected function validarTipo( object $proposta, string $tipo ): void
+  {
+    if ( $proposta instanceof $tipo )
+    {
+      throw new \Exception( "Objeto proposto não é instância de: ".$tipo );
+    }
+  }
+
+  //---------------------------------------
+
+  private function obterStringConexaoDasVariaveisAmbientes(): void
   {
     $pghost     = getenv( "PG_HOST" );
     $pguser     = getenv( "PG_USER" );
@@ -50,29 +125,12 @@ abstract class RepoGenerico
   }
 
   //---------------------------------------
-
-  protected function encerrar(): void
+  
+  private function eRepositorioSomenteEscrita(): bool
   {
-    pg_close( $this->conexao );
+    return !$this->somenteLeitura;
   }
 
-  //---------------------------------------
-
-  protected function validarAcaoEscrita(): void
-  {
-    if ( !$this->eNulaRepresentacao() )
-    {
-      return;
-    }
-    throw new \Exception( "escrever: escrita negada pois representacao é nula." );
-  }
-
-  //---------------------------------------
-
-  protected function eNulaRepresentacao(): bool
-  {
-    return ( $this->representacao === NULL );
-  }
 
 }
 
