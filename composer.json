@@ -6,7 +6,8 @@
     "scripts":{
         "test": "./vendor/bin/phpunit --testdox tests",
         "testdebug": "./vendor/bin/phpunit --debug --testdox tests",
-        "lint": "find Src/ -type f -iname *.php | xargs -d '\n' -I '{}' php -l {}"
+        "lint": "find Src/ -type f -iname *.php | xargs -d '\n' -I '{}' php -l {}",
+        "devserve": "php -t ./Public -S '[::1]:8080'"
     },
     "autoload": {
         "psr-4": {

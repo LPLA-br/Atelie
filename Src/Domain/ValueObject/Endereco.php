@@ -18,7 +18,7 @@ class Endereco
     ?string $unidadeAdministrativa,
     string  $cidade,
     string  $bairro,
-    string  $rua;
+    string  $rua,
     string  $numeroImovel,
     ?string $apartamento,
   )

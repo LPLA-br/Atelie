@@ -176,18 +176,8 @@ PATCH   Modificação parcial ou total da representação de um recurso
         respeitando restrições de Domínio.
 DELETE  Deleção ou arquivamento de recurso e sua representação.
 
-/clientes
-/clientes/:id
-
-/servicos
-/servicos?estado
-/servico/:id
-
-/pecas
-/pecas/:id
-
-/medidas
-/medidas/:cliente
+Modelo php/apache apenas GET POST com renderização server side adotada
+no projeto.
 
 -----------------------------------------------------------------------
 4.BANCO DE DADOS
@@ -259,4 +249,5 @@ coletarEvidencias->analisar->ordenar->enumerarConclusoes();
   |Domain Layer
   |Infrastructure Layer
   |_____________________
+
 

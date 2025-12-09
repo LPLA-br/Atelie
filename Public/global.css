@@ -1,0 +1,109 @@
+/*unidades relativas
+ * 50px = 5rem
+ * 178px = 17.8rem
+ * 20px = 2rem*/
+
+/*RESET*/
+*,
+::before,
+::after
+{
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+
+:root
+{
+	font-size: 62.5%;
+  --cabrod: #afafaf;
+}
+
+body
+{
+	font-size: 16px;
+}
+/*RESET*/
+
+/*GENÊRICO*/
+
+.margem-centrar
+{
+	margin: 0 auto;
+}
+
+.borda-visivel
+{
+	border: 1px solid black;
+}
+
+/*GENÊRICO*/
+
+/*TIPOGRAFIA*/
+
+.negrito
+{
+	font-weight: bold;
+}
+
+.a-direita
+{
+	float: right;
+}
+
+/*TIPOGRAFIA*/
+
+/*BODY*/
+
+/*-------------*/
+/*-------------*/
+/*-------------*/
+/*SETOR(mobile)*/
+
+
+/*SETOR(mobile)*/
+/*-------------*/
+/*-------------*/
+/*-------------*/
+
+
+
+/*-------------*/
+/*-------------*/
+/*-------------*/
+/*SETOR(desktop)*/
+
+html, body
+{
+  height: 100%;
+  margin: 0;
+}
+
+body
+{
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.cabecalho
+{
+  background-color: var(--cabrod);
+}
+
+.conteudo
+{
+  height: 100%;
+}
+
+.rodape
+{
+  background-color: var(--cabrod);
+}
+
+/*SETOR(desktop)*/
+/*-------------*/
+/*-------------*/
+/*-------------*/
+
+/*BODY*/
