@@ -15,7 +15,9 @@ class RepositorioAdapter implements IRepositorio
   public function __construct()
   {
     $this->objetos = array();
-    $this->conexao = pg_connect( $this->obterStringConexaoDasVariaveisAmbientes() );
+
+    $credenciais =  $this->obterStringConexaoDasVariaveisAmbientes();
+    $this->conexao = pg_connect( $credenciais );
   }
 
   //---------------------------------------
@@ -29,7 +31,6 @@ class RepositorioAdapter implements IRepositorio
 
   public function ler( string $consulta ): void
   {
-    $this->invalidarLeiturasPorSomenteEscrita();
     $this->objetos = array();
     $res = array();
 
@@ -60,7 +61,7 @@ class RepositorioAdapter implements IRepositorio
   {
     try
     {
-      pg_query_params( $this-conexao, $ordem, $dados );
+      pg_query_params( $this->conexao, $ordem, $dados );
     }
     catch( \Exception $error )
     {
@@ -101,17 +102,17 @@ class RepositorioAdapter implements IRepositorio
 
     switch ( true )
     {
-      case ($pghost === NULL):
+      case ( $pghost instanceof string ):
         throw new \Exception( "Variável ambiente PG_HOST não definida" );
-      case ($pguser === NULL):
+      case ( $pguser instanceof string ):
         throw new \Exception( "Variável ambiente PG_USER não definida" );
-      case ($pgdatabase === NULL):
+      case ( $pgdatabase instanceof string ):
         throw new \Exception( "Variável ambiente PG_DATABASE não definida" );
-      case ($pgpass === NULL):
+      case ( $pgpass instanceof string ):
         throw new \Exception( "Variável ambiente PG_PASS não definida" );
     }
 
-    return "host=".$pghost." user=".$pguser." dbname=".$pgname." password=".$pgpass;
+    return "host=".$pghost." user=".$pguser." dbname=".$pgdatabase." password=".$pgpass;
   }
 
 }

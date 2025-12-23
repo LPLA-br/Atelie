@@ -1,21 +1,23 @@
 <?php
 
 use \Src\Domain\Repository\RepoCliente;
+use \Src\Domain\Repository\RepositorioAdapter;
 
+/* Use cases para manipulação informacional de clientes */
 class ServicoCliente
 {
+
+  public function __construct()
+  {
+    
+  }
+
   //---- read
 
-  public function obterMedidas(): object
+  public function obterDados(): object
   {
     return (object) array();
   }
-
-  public function obterEndereco(): void
-  {}
-
-  public function obterContatos(): void
-  {}
 
   //----- use cases
 

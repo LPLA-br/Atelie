@@ -12,14 +12,22 @@ class RepoCliente
 {
 
   private IRepositorio $repo;
+  private bool $encerrado;
 
   public function __construct( IRepositorio $repo )
   {
     $this->repo = $repo;
+    $this->encerrado = false;
   }
 
   public function obterObjetos(): array
   {
+
+    if ( $this->encerrado === true )
+    {
+      return array();
+    }
+
     $clientesRetorno = $this->repo->obterArrayObjetos();
     $retorno = array();
 
@@ -28,27 +36,33 @@ class RepoCliente
       throw new \Exception( "obterObjetos: consulta retornou não lista" );
     }
 
-    for ( $i=0; $i<sizeof($this->resultado); $i++ )
+    for ( $i=0; $i<sizeof($clientesRetorno); $i++ )
     {
-      $id = (int)($this->resultado[ $i ][ "id" ]);
-      $nome = $this->resultado[ $i ][ "nome" ];
+      $id = (int)($clientesRetorno[ $i ]->id);
+      $nome = $clientesRetorno[ $i ]->nome;
 
-      // NULL | object
-      $contato = $this->resultado[ $i ][ "contato" ];
-      $medida = $this->resultado[ $i ][ "medida" ];
-      $endereco = $this->resultado[ $i ][ "endereco" ];
+      //uso futuro.
+      //$endereco = $clientesRetorno[ $i ][ "endereco" ];
+      //$contato = $clientesRetorno[ $i ][ "contato" ];
+      $medida = $clientesRetorno[ $i ]->medida;
 
       array_push( $retorno,
         new Cliente(
           $id,
           $nome,
           NULL, //contato
-          new Medida( json_encode( $medida ) ),
+          new Medida( $medida ),
           NULL //endereco
       ));
       continue;
     }
     return $retorno;
+  }
+
+  public function encerrar(): void
+  {
+    $this->encerrar = true;
+    $this->repo->encerrar();
   }
 
   //-------------------------------------
