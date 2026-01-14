@@ -1,0 +1,21 @@
+@startuml
+
+class EntidadeARepo
+class EntidadeBRepo
+class EntidadeCRepo
+
+interface ExemploInterface
+
+class DatabaseCursorAdapter
+
+class SpecificDatabaseAPI
+
+EntidadeARepo ..> ExemploInterface
+EntidadeBRepo ..> ExemploInterface
+EntidadeCRepo ..> ExemploInterface
+
+ExemploInterface <|.. DatabaseCursorAdapter
+
+DatabaseCursorAdapter --> SpecificDatabaseAPI
+
+@enduml

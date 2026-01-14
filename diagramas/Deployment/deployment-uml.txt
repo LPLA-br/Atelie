@@ -20,15 +20,17 @@
     para clientes (Interface do Usuário)
   ]
 
-  Package Dominio [
-    Classes do domínio de negócios
-  ]
+  hexagon hexagonal_architecture {
+    Package Dominio [
+      Classes do domínio de negócios
+    ]
+  }
 
   SGBDCursor -- Postgres
-  Dominio -- SGBDCursor : Adaptado
-  Dominio -- Http : Adaptado
-  Dominio -- Renderizador : Adaptado
-  Costureira -- Renderizador : uso
+  Dominio -- SGBDCursor : Adaptador
+  Dominio -- Http : Adaptador
+  Dominio -- Renderizador : Adaptador
+  Costureira -- Renderizador : usos
 
 @enduml
 

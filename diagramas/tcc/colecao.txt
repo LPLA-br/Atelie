@@ -1,0 +1,9 @@
+@startuml
+  class Livro
+  class PaginasColecao
+  class Pagina
+
+  Livro <-- PaginasColecao
+  Pagina "N" *-- PaginasColecao
+
+@enduml

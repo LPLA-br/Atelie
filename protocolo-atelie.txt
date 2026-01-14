@@ -1,0 +1,56 @@
+PROTOCOLO ATELIE
+
+DA INTRODUÇÃO
+
+O protocolo ateliê foi criado como uma forma simples de permitir a comunicação
+entre qualquer tecnologia de scripting ou compilada capaz de criar socket UDP e
+o backend php cuja implementação de servidor http em conformidade com REST
+apresenta-se como complicada e promovedora de acoplamento. Backend php cuja
+implementação de api rest prova-se ser mais trabalhosa.
+
+Este protocolo pertence à camada TCP/IP de Aplicação e camada OSI 7 de mesmo
+nome. trata-se de comunicação bidirecional sobre UDP para porta 9999.
+
+TCP empregará-se em situações de problemas com integridade da sintaxe aqui
+especificadada.
+
+DA SINTAXE
+
+Os dados formata-se-ão na seguinte sintaxe:
+
+O sujeito que indica qual entidade do backend sofrerá a ação do verbo. Trata-se
+da primeira coluna comma separated value.
+
+O verbo que indica ação a ser executada sobre o sujeito. Trata-se da segunda
+coluna comma separated value.
+
+verbos considerados: criar ler atualizar remover info
+
+O objeto que detalha as informações necessárias para consolidação da ação
+construido na forma JSON. trata-se da terceira coluna comma separated values.
+
+DO FUNCIONAMENTO
+
+cliente servidor
+req ->  receber,tratar,processar,responder
+<- res
+
+DOS EXEMPLOS
+
+Por fim, segue-se os exemplos de como
+o protocolo atelie funciona:
+
+cliente,criar,{"nome":"Maria","medida":{"cintura":70cm}}\n
+cliente,remover,{"id":56}\n
+cliente,ler,{"nome":"Maria"}\n
+cliente,atualizar,{"id":"98","medida":56.3}\n
+
+EXTENÇÃO ATUALIZAÇÃO
+a virgula é um separador em arquivos json o que
+implica na mudaça de ',' para '|'
+
+cliente|criar|{"nome":"Maria","medida":{"cintura":70cm}}\n
+cliente|remover|{"id":56}\n
+cliente|ler|{"nome":"Maria"}\n
+cliente|atualizar|{"id":"98","medida":56.3}\n
+
