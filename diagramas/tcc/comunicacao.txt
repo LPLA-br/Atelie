@@ -1,0 +1,10 @@
+@startuml
+
+class Servidor
+class IServidor
+class main
+
+Servidor ..|> IServidor
+main ..> IServidor
+
+@enduml

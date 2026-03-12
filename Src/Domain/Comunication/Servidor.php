@@ -1,10 +1,15 @@
 <?php
 
+namespace Src\Domain\Comunication;
+
+use Src\Domain\Comunication\IServidor;
+
 /** Implementação do protocolo atelie
  *  baseado em csv e json e de estilo
  *  remote procedure call.
+ *  cliente|criar|{"nome":"Maria","medida":{"cintura":70cm}}\n
  * */
-class Servidor
+class Servidor implements IServidor
 {
   private string $inet4;
   private int $porta;
@@ -16,7 +21,7 @@ class Servidor
 
   private object $comando_objeto;
 
-  const SEPARADORES = ";";
+  const SEPARADORES = "|";
 
   public function __construct()
   {
@@ -76,8 +81,12 @@ class Servidor
     socket_close( $this->socket );
   }
 
+  public function rotear(): void
+  {}
+
   //------------------------------------------------
 
+  //testes
   protected function responderEco( string $ip_cliente, string $porta_cliente ): void
   {
     socket_sendto( $this->socket, $this->comando, strlen($this->comando), 0, $ip_cliente, $porta_cliente );
@@ -148,7 +157,5 @@ class Servidor
     }
   }
 
-  private function validarDatagrama(): void
-  {}
 }
 
