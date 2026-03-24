@@ -12,6 +12,5 @@ interface IServidor
   public function obterObjetoComando(): object;
   public function ouvir(): void;
   public function fechar(): void;
-  public function rotear(): void;
 }
 

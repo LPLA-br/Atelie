@@ -1,30 +1,87 @@
 <?php
 
-use \Src\Domain\Repository\RepoCliente;
-use \Src\Domain\Repository\RepositorioAdapter;
+use Src\Domain\Repository\RepositorioAdapter;
+use Src\Domain\Repository\RepoCliente;
+use Src\Domain\Entity\Cliente;
 
-/* Use cases para manipulação informacional de clientes */
+/* Use cases para manipulação informacional de clientes
+ *
+ * Recebe: struct Cliente
+ * Retorna: struct Resposta stringficada do serviço cliente
+ * Modo de vida: construção->ação->destruição
+ * */
 class ServicoCliente
 {
 
-  public function __construct()
+	/** {sujeito:string, verbo:string, objeto:stringfiedJSON} */
+	private object $svo;
+	private Cliente $cliente;
+
+  public function __construct( object $svo )
   {
-    
+    $this->svo = $svo;
   }
 
-  //---- read
+	// MÉTODOS
 
-  public function obterDados(): object
+	/** Recebe: dados "object" do cliente. */
+	public function registarCliente(): string
+	{
+		try
+		{
+			$cliente = new Cliente(
+				-1,
+				$svo["objeto"]["nome"],
+				( $svo["objeto"]["contato"] ? $svo["objeto"]["contato"] : array() ),
+				NULL,
+				NULL
+			);
+
+			$repositorioCliente = new RepoCliente();
+			$repositorioCliente->registrarNovoCliente( $cliente );
+			$repositorioCliente->encerrar();
+
+			return "OK";
+		}
+		catch ( Throwable $e )
+		{
+			echo "ServicoCliente->registarCliente(...): " . $e->getMessage();
+			return "FAIL";
+		}
+	}
+
+  public function consultarCliente(): string
   {
-    return (object) array();
+		try
+		{
+			$repositorioCliente = new RepoCliente();
+			$repositorioCliente->carregarTodosCLientes();
+			$repositorioCliente->encerrar();
+
+			return "OK|" . array( "clientes" => json_encode($repositorioCliente->obterObjetos()) );
+		}
+		catch ( Throwable $e )
+		{
+			echo "ServicoCliente->consultarCLiente(...): " . $e->getMessage();
+			return "FAIL";
+		}
   }
 
-  //----- use cases
+	public function atualizarCliente(): string
+	{
+		return "";
+	}
 
-  public function  alterarMedidas(): void
-  {}
+	/** Adiciona flag de removido:true no JSON */
+	public function removerCliente(): string
+	{
+		return "";
+	}
 
-  //--------------------
+  public function  alterarMedidas(): string
+	{
+		return "";
+	}
 
 }
 

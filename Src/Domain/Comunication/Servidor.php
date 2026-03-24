@@ -23,10 +23,10 @@ class Servidor implements IServidor
 
   const SEPARADORES = "|";
 
-  public function __construct()
+  public function __construct( string $inet4, int $porta )
   {
-    $this->inet4 = "127.0.0.1";
-    $this->porta = 9999;
+    $this->inet4 = $inet4;
+    $this->porta = $porta;
     $this->bytesize = 2048;
     $this->comando_objeto = (object) array();
 
@@ -55,7 +55,7 @@ class Servidor implements IServidor
   {
     while (1)
     {
-      $this->limparComando();
+      $this->limparBufferTextualComando();
 
       $ip_cliente = '';
       $porta_cliente = '';
@@ -69,10 +69,11 @@ class Servidor implements IServidor
       }
       $this->analizarComandoCorrente();
       $this->eliminarSeparadores();
-      $this->responderEco( $ip_cliente, $porta_cliente );
+      //$this->responderEco( $ip_cliente, $porta_cliente );
       //classe para execução de use case
       fwrite( STDOUT, $this->comando );
       var_dump( $this->comando_objeto );
+			$this->limparBufferTextualComando();
     }
   }
 
@@ -81,10 +82,58 @@ class Servidor implements IServidor
     socket_close( $this->socket );
   }
 
-  public function rotear(): void
-  {}
 
   //------------------------------------------------
+
+	/* TODO: possibilidade de delegar responsabilidade
+	 * para arquivo de configuração de roteamento.
+	 * Relação de Dependência com Services.
+	 * */
+  protected function rotearPorSujeito( string $ip_cliente, string $porta_cliente ): void
+	{
+		$sujeito = $this->comando_objeto["sujeito"];
+		$verbo = $this->comando_objeto["verbo"];
+
+		switch( $sujeito )
+		{
+			case "cliente":
+				$this->direcionarParaVerbo( $ip_cliente, $porta_cliente, $verbo );
+				break;
+			case "servicoCostureira":
+				$this->responder( $ip_cliente, $porta_cliente, '{desc:"não implementado"}' );
+				break;
+			default:
+				fwrite( STDOUT, ("Sujeito inválido: " . $sujeito . "\n") );
+				break;
+		}
+	}
+
+	/** Método subordinado a rotearPorSujeito(...) */
+	protected function direcionarParaVerbo( string $ip_cliente, string $porta_cliente, string $verbo )
+	{
+		switch( $verbo )
+		{
+			case "criar":
+				$clientService = new ServicoCliente( $this->comando_objeto );
+				$this->responder( $ip_cliente, $porta_cliente, $clientService->registarCliente(...) );
+				break;
+			case "ler":
+				break;
+			case "atualizar":
+				break;
+			case "remover":
+				break;
+			default:
+				fwrite( STDOUT, ("Verbo inválido: " . $verbo . "\n") );
+				break;
+		}
+	}
+
+	/** Método subordinado a direcionarParaVerbo(...) */
+	protected function responder( string $ip_cliente, string $porta_cliente, string $stringDados ): void
+  {
+    socket_sendto( $this->socket, $stringDados, strlen($stringDados), 0, $ip_cliente, $porta_cliente );
+  }
 
   //testes
   protected function responderEco( string $ip_cliente, string $porta_cliente ): void
@@ -99,24 +148,26 @@ class Servidor implements IServidor
     die( "Erro crítico: ".$mensagem." [".$err."] ".$msg );
   }
 
-  // não valida comando !
+	/* Interpreta comando enviado via socket UDP
+	 * 
+	 * */
   private function analizarComandoCorrente(): void
   {
     $str = $this->comando;
     $svo = ['','',''];
-    $posicaoSVO = 0;
-    $posicaoStringSVO = 0;
+    $leitorPosicao = 0;
+    $posicaoSubstrigEscrita = 0;
 
     for ( $i = 0; $i < strlen($str); $i++ )
     {
       //transcrição
-      $svo[$posicaoSVO][$posicaoStringSVO] = $str[$i];
-      $posicaoStringSVO++;
+      $svo[$leitorPosicao][$posicaoSubstrigEscrita] = $str[$i];
+      $posicaoSubstrigEscrita++;
 
       if ( $str[$i] === self::SEPARADORES )
       {
-        $posicaoSVO++;
-        $posicaoStringSVO = 0;
+        $leitorPosicao++;
+        $posicaoSubstrigEscrita = 0;
       }
 
       if ( $str[$i] == "\n" || $str[$i] == '\n' )
@@ -132,16 +183,16 @@ class Servidor implements IServidor
     );
   }
 
-  private function limparComando(): void
+  private function limparBufferTextualComando(): void
   {
     $this->comando = '';
   }
 
   private function eliminarSeparadores(): void
   {
-    $this->comando_objeto->sujeito = str_replace([';'], '', $this->comando_objeto->sujeito);
-    $this->comando_objeto->verbo = str_replace([';'], '', $this->comando_objeto->verbo);
-    $this->comando_objeto->objeto = str_replace([';'], '', $this->comando_objeto->objeto);
+    $this->comando_objeto->sujeito = str_replace(['|'], '', $this->comando_objeto->sujeito);
+    $this->comando_objeto->verbo = str_replace(['|'], '', $this->comando_objeto->verbo);
+    $this->comando_objeto->objeto = str_replace(['|'], '', $this->comando_objeto->objeto);
   }
 
   private function obterParteObjetoComoJson(): object
