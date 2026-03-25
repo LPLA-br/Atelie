@@ -8,6 +8,9 @@ use \Src\Domain\Repository\RepositorioAdapter;
 use \Src\Domain\Entity\Cliente;
 use \Src\Domain\ValueObject\Medida;
 
+/** Repositorio
+ * Executa-se ação e coleta dados objeto ou array de objetos
+ * pelo método obterObjetos() */
 class RepoCliente
 {
 
@@ -20,41 +23,40 @@ class RepoCliente
     $this->encerrado = false;
   }
 
+	/* NOTA: atributos protegidos não são acessíveis sem getter() */
   public function obterObjetos(): array
   {
 
-    if ( $this->encerrado === true )
-    {
-      return array();
-    }
-
     $clientesRetorno = $this->repo->obterArrayObjetos();
-    $retorno = array();
+    $retorno = [];
 
     if ( !is_array($clientesRetorno) )
     {
       throw new \Exception( "obterObjetos: consulta retornou não lista" );
     }
 
-    for ( $i=0; $i<sizeof($clientesRetorno); $i++ )
+    for ( $i = 0; $i < sizeof( $clientesRetorno ); $i++ )
     {
-      $id = (int)($clientesRetorno[ $i ]->id);
-      $nome = $clientesRetorno[ $i ]->nome;
+			try
+			{
+				$id = (int)($clientesRetorno[ $i ]->id);
+				$nome = $clientesRetorno[ $i ]->nome;
 
-      //uso futuro.
-      //$endereco = $clientesRetorno[ $i ][ "endereco" ];
-      //$contato = $clientesRetorno[ $i ][ "contato" ];
-      $medida = $clientesRetorno[ $i ]->medida;
+				//uso futuro.
+				//$endereco = $clientesRetorno[ $i ][ "endereco" ];
+				//$contato = $clientesRetorno[ $i ][ "contato" ];
+				$medida = $clientesRetorno[ $i ]->medida;
+				
+				$medidaCorrente = new Medida( $medida );
+				$clienteCorrente = new Cliente( $id, $nome, NULL, $medidaCorrente, NULL );
 
-      array_push( $retorno,
-        new Cliente(
-          $id,
-          $nome,
-          NULL, //contato
-          new Medida( $medida ),
-          NULL //endereco
-      ));
-      continue;
+				array_push( $retorno, $clienteCorrente );
+			}
+			catch ( Throwable $e )
+			{
+				echo $e->getMessage();
+				return [];
+			}
     }
     return $retorno;
   }

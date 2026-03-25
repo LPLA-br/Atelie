@@ -4,6 +4,6 @@ require './vendor/autoload.php';
 
 use Src\Domain\Comunication\Servidor;
 
-$servicoPrincipal = new Servidor( getenv( "ATELIE_INTERFACE_IP" ), (int)getenv( "ATELIE_UDP_PORT" ) );
+$servicoPrincipal = new Servidor( "127.0.0.1", "9999" );
 $servicoPrincipal->ouvir();
 

@@ -3,10 +3,12 @@
 namespace Src\Domain\Comunication;
 
 use Src\Domain\Comunication\IServidor;
+use Src\Domain\Service\ServicoCliente;
 
 /** Implementação do protocolo atelie
  *  baseado em csv e json e de estilo
  *  remote procedure call.
+ *  Classe de vida longa não paralelizada.
  *  cliente|criar|{"nome":"Maria","medida":{"cintura":70cm}}\n
  * */
 class Servidor implements IServidor
@@ -19,6 +21,11 @@ class Servidor implements IServidor
 
   private string $comando;
 
+	/** Representa requisição do protocolo ateliê
+	 *	@property string $sujeito		Entidade passiva.
+	 *	@property string $verbo			Ação a ser realizada.
+	 *	@property string$objeto			Dados JSON stringficados para ação a ser realizada.
+	 * */
   private object $comando_objeto;
 
   const SEPARADORES = "|";
@@ -70,7 +77,7 @@ class Servidor implements IServidor
       $this->analizarComandoCorrente();
       $this->eliminarSeparadores();
       //$this->responderEco( $ip_cliente, $porta_cliente );
-      //classe para execução de use case
+			$this->rotearPorSujeito( $ip_cliente, $porta_cliente );
       fwrite( STDOUT, $this->comando );
       var_dump( $this->comando_objeto );
 			$this->limparBufferTextualComando();
@@ -85,21 +92,17 @@ class Servidor implements IServidor
 
   //------------------------------------------------
 
-	/* TODO: possibilidade de delegar responsabilidade
-	 * para arquivo de configuração de roteamento.
-	 * Relação de Dependência com Services.
-	 * */
   protected function rotearPorSujeito( string $ip_cliente, string $porta_cliente ): void
 	{
-		$sujeito = $this->comando_objeto["sujeito"];
-		$verbo = $this->comando_objeto["verbo"];
+		$sujeito = $this->comando_objeto->sujeito;
 
 		switch( $sujeito )
 		{
 			case "cliente":
-				$this->direcionarParaVerbo( $ip_cliente, $porta_cliente, $verbo );
+				$this->direcionarVerboDoCliente( $ip_cliente, $porta_cliente );
 				break;
 			case "servicoCostureira":
+				//$this->direcionarParaVerbo();
 				$this->responder( $ip_cliente, $porta_cliente, '{desc:"não implementado"}' );
 				break;
 			default:
@@ -109,30 +112,45 @@ class Servidor implements IServidor
 	}
 
 	/** Método subordinado a rotearPorSujeito(...) */
-	protected function direcionarParaVerbo( string $ip_cliente, string $porta_cliente, string $verbo )
+	protected function direcionarVerboDoCliente( string $ip_cliente, string $porta_cliente ): void
 	{
-		switch( $verbo )
+		try
 		{
-			case "criar":
-				$clientService = new ServicoCliente( $this->comando_objeto );
-				$this->responder( $ip_cliente, $porta_cliente, $clientService->registarCliente(...) );
-				break;
-			case "ler":
-				break;
-			case "atualizar":
-				break;
-			case "remover":
-				break;
-			default:
-				fwrite( STDOUT, ("Verbo inválido: " . $verbo . "\n") );
-				break;
+			$verbo  = $this->comando_objeto->verbo;
+			$objeto = $this->comando_objeto->objeto;
+
+			switch( $verbo )
+			{
+				case "criar":
+					$servicoCliente = new ServicoCliente( json_decode($objeto) );
+					$this->responder( $ip_cliente, $porta_cliente, $servicoCliente->registarCliente() );
+					break;
+				case "ler":
+					$servicoCliente = new ServicoCliente( json_decode($objeto) );
+					$this->responder( $ip_cliente, $porta_cliente, $servicoCliente->consultarTodosClientes() );
+					break;
+				case "atualizar":
+					break;
+				case "remover":
+					break;
+				default:
+					fwrite( STDOUT, ("Servidor ServicoCliente ERR:verbo inválido " . $verbo . "\n") );
+					break;
+			}
+		}
+		catch ( Throwable $e )
+		{
+			echo "Servidor ServicoCliente: " . $e->getMessage();
+			return;
 		}
 	}
 
-	/** Método subordinado a direcionarParaVerbo(...) */
-	protected function responder( string $ip_cliente, string $porta_cliente, string $stringDados ): void
+	protected function direcionarParaVerboDeServicoCostureira(): void
+	{}
+
+	protected function responder( string $ip_cliente, string $porta_cliente, string $stringDadosJSON ): void
   {
-    socket_sendto( $this->socket, $stringDados, strlen($stringDados), 0, $ip_cliente, $porta_cliente );
+    socket_sendto( $this->socket, $stringDadosJSON, strlen($stringDadosJSON), 0, $ip_cliente, $porta_cliente );
   }
 
   //testes

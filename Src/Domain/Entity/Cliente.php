@@ -5,6 +5,7 @@ namespace Src\Domain\Entity;
 use Src\Domain\Service\ServicoCostureira;
 use Src\Domain\ValueObject\Contato;
 use Src\Domain\ValueObject\Medida;
+use Src\Domain\ValueObject\Endereco;
 
 class Cliente
 {
@@ -60,6 +61,16 @@ class Cliente
     $this->validarOperacaoAgregada( $this->endereco, "Endereco" );
     return "";
   }
+
+	public function obterRepresentacaoJSON(): string
+	{
+		return json_encode ( (object) array(
+				"id" => $this->obterId(),
+				"nome"	=> $this->obterNome(),
+				"medidas" => $this->obterMedidas()
+			)
+		);
+	}
 
   //-----------------------------------
 
